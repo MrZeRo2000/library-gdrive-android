@@ -9,7 +9,9 @@ import android.content.IntentSender;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.Toast;
 
+import com.google.android.gms.auth.UserRecoverableAuthException;
 import com.google.android.gms.auth.api.identity.BeginSignInRequest;
 import com.google.android.gms.auth.api.identity.BeginSignInResult;
 import com.google.android.gms.auth.api.identity.Identity;
@@ -24,19 +26,24 @@ import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
+import com.google.api.services.drive.model.FileList;
 
 import java.io.IOException;
+import java.util.Collections;
 
 public class MainActivity extends AppCompatActivity {
     private final static String TAG = MainActivity.class.getSimpleName();
 
     private static final int REQUEST_CODE_SIGN_IN = 1;
+    private static final int REQUEST_CODE_RECOVER = 10;
     private static final int REQ_ONE_TAP = 2;
 
     private static final String APPLICATION_NAME = "library-gdrive-testapp";
@@ -98,6 +105,38 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "signInAccount is null");
             } else {
                 Log.d(TAG, "signInAccount is not null!!");
+                Log.d(TAG, "Signed in as " + signInAccount.getEmail());
+
+                // Use the authenticated account to sign in to the Drive service.
+                GoogleAccountCredential credential =
+                        GoogleAccountCredential.usingOAuth2(
+                                this, Collections.singleton(DriveScopes.DRIVE));
+                credential.setSelectedAccount(signInAccount.getAccount());
+                Drive googleDriveService =
+                        new Drive.Builder(
+                                new NetHttpTransport(),
+                                new GsonFactory(),
+                                credential)
+                                .setApplicationName("Drive API Migration")
+                                .build();
+
+                // The DriveServiceHelper encapsulates all REST API and SAF functionality.
+                // Its instantiation is required before handling any onClick actions.
+                DriveServiceHelper driveServiceHelper = new DriveServiceHelper(googleDriveService);
+
+                driveServiceHelper.queryFiles().addOnSuccessListener(new OnSuccessListener<FileList>() {
+                    @Override
+                    public void onSuccess(FileList fileList) {
+                        Log.d(TAG, "Obtained files:" + fileList.getFiles().toString());
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    if (e instanceof UserRecoverableAuthIOException) {
+                        startActivityForResult(((UserRecoverableAuthIOException)e).getIntent(), REQUEST_CODE_RECOVER);
+                    }
+
+                    Log.d(TAG, "Error obtaining files:" + e.getMessage() + ", cause:" + e.getCause().getMessage());
+                });
             }
         });
 
@@ -108,7 +147,12 @@ public class MainActivity extends AppCompatActivity {
 
         Button requestSignOutButton = findViewById(R.id.button_request_sign_out);
         requestSignOutButton.setOnClickListener(v -> {
-            requestSignOut();
+            GoogleSignInAccount signInAccount = GoogleSignIn.getLastSignedInAccount(this);
+            if (signInAccount == null) {
+                Toast.makeText(this, "Already signed out", Toast.LENGTH_SHORT).show();
+            } else {
+                requestSignOut();
+            }
         });
 
 
@@ -140,6 +184,13 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "ApiException:" + e.getLocalizedMessage());
                 }
                 break;
+            case REQUEST_CODE_SIGN_IN:
+                Log.d(TAG, "Signed in successfully");
+
+                break;
+            case REQUEST_CODE_RECOVER:
+                Log.d(TAG, "Recover result:" + data.toString());
+                break;
         }
     }
 
@@ -149,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
         GoogleSignInOptions signInOptions =
                 new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                         .requestEmail()
-                        .requestScopes(new Scope(DriveScopes.DRIVE_FILE))
+                        .requestScopes(new Scope(DriveScopes.DRIVE))
                         .build();
         GoogleSignInClient client = GoogleSignIn.getClient(this, signInOptions);
 
