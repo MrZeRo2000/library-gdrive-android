@@ -7,10 +7,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.google.android.gms.auth.UserRecoverableAuthException;
 import com.google.android.gms.auth.api.identity.BeginSignInRequest;
 import com.google.android.gms.auth.api.identity.BeginSignInResult;
@@ -26,6 +29,9 @@ import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskCompletionSource;
+import com.google.android.gms.tasks.Tasks;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.http.javanet.NetHttpTransport;
@@ -36,8 +42,11 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.FileList;
 
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.Collections;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
     private final static String TAG = MainActivity.class.getSimpleName();
@@ -52,10 +61,14 @@ public class MainActivity extends AppCompatActivity {
     private SignInClient oneTapClient;
     private BeginSignInRequest signInRequest;
 
+    private RESTDriveService rs;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        rs = new RESTDriveService(this);
 
         Button signInButton = findViewById(R.id.button_sign_in);
         signInButton.setOnClickListener(v -> {
@@ -155,6 +168,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button restServiceButton = findViewById(R.id.button_rest_service);
+        restServiceButton.setOnClickListener(v -> {
+
+            rs.connectAndStartOperation(0);
+
+        });
 
     }
 
@@ -172,7 +191,8 @@ public class MainActivity extends AppCompatActivity {
                     if (idToken !=  null) {
                         // Got an ID token from Google. Use it to authenticate
                         // with your backend.
-                        Log.d(TAG, "Got ID token.");
+                        Log.d(TAG, "Got ID token:" + idToken);
+
                     } else if (password != null) {
                         // Got a saved username and password. Use them to authenticate
                         // with your backend.
@@ -191,7 +211,29 @@ public class MainActivity extends AppCompatActivity {
             case REQUEST_CODE_RECOVER:
                 Log.d(TAG, "Recover result:" + data.toString());
                 break;
+            default:
+                rs.handleActivityResult(requestCode, data);
         }
+    }
+
+    private void callWithToken(String idToken) {
+        MSGraphRequestWrapper.callGraphAPIUsingVolley(
+                this,
+                "https://www.googleapis.com/drive/v3/files?key=AIzaSyBsyDJPnThE-LwMHb1Bs7MraYsHGqN53Vg",
+                idToken,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Log.d(TAG, "Got response from Google:" + response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d(TAG, "Error response Google: " + MSGraphRequestWrapper.getErrorResponseBody(error));
+                    }
+                }
+        );
     }
 
     private void requestSignIn() {
@@ -201,6 +243,7 @@ public class MainActivity extends AppCompatActivity {
                 new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                         .requestEmail()
                         .requestScopes(new Scope(DriveScopes.DRIVE))
+                        .requestServerAuthCode(getString(R.string.default_web_client_id))
                         .build();
         GoogleSignInClient client = GoogleSignIn.getClient(this, signInOptions);
 

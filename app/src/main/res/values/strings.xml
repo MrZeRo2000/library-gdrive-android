@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">GDrive TestApp</string>
     <string name="default_web_client_id">381939286653-uflnts066ijk9l8v6a462lc9tm9eq83k.apps.googleusercontent.com</string>
+    <string name="client_secret">h7ZgXo4eJfo07SGwgNRHzeKZ</string>
 </resources>

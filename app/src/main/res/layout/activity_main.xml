@@ -38,5 +38,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button_request_sign_in" />
 
+    <Button
+        android:id="@+id/button_rest_service"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="REST service"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_request_sign_out" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
