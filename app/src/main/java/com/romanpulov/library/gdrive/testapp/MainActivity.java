@@ -17,7 +17,10 @@ import com.google.android.gms.auth.api.identity.SignInClient;
 import com.google.android.gms.auth.api.identity.SignInCredential;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
@@ -32,6 +35,8 @@ import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
     private final static String TAG = MainActivity.class.getSimpleName();
+
+    private static final int REQUEST_CODE_SIGN_IN = 1;
     private static final int REQ_ONE_TAP = 2;
 
     private static final String APPLICATION_NAME = "library-gdrive-testapp";
@@ -96,6 +101,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button requestSignInButton = findViewById(R.id.button_request_sign_in);
+        requestSignInButton.setOnClickListener(v -> {
+            requestSignIn();
+        });
+
+        Button requestSignOutButton = findViewById(R.id.button_request_sign_out);
+        requestSignOutButton.setOnClickListener(v -> {
+            requestSignOut();
+        });
+
+
     }
 
     @Override
@@ -125,5 +141,54 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
         }
+    }
+
+    private void requestSignIn() {
+        Log.d(TAG, "Requesting sign-in");
+
+        GoogleSignInOptions signInOptions =
+                new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                        .requestEmail()
+                        .requestScopes(new Scope(DriveScopes.DRIVE_FILE))
+                        .build();
+        GoogleSignInClient client = GoogleSignIn.getClient(this, signInOptions);
+
+        // The result of the sign-in Intent is handled in onActivityResult.
+        startActivityForResult(client.getSignInIntent(), REQUEST_CODE_SIGN_IN);
+    }
+
+    private void requestSignOut () {
+        GoogleSignInOptions signInOptions =
+                new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                        .build();
+        GoogleSignInClient client = GoogleSignIn.getClient(this, signInOptions);
+        client.revokeAccess().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                Log.d(TAG, "Revoked access");
+            }
+        })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "Revoke access failure:" + e.getMessage());
+                    }
+                });
+
+        /*
+        client.signOut().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                Log.d(TAG, "Signed out successfully!");
+            }
+        })
+        .addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(TAG, "Signed out error: " + e.getMessage());
+            }
+        });
+
+         */
     }
 }
