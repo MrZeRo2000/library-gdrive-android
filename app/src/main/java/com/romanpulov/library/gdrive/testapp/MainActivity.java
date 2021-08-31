@@ -1,8 +1,10 @@
 package com.romanpulov.library.gdrive.testapp;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,12 +14,28 @@ import com.google.android.gms.auth.api.identity.BeginSignInRequest;
 import com.google.android.gms.auth.api.identity.BeginSignInResult;
 import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.auth.api.identity.SignInClient;
+import com.google.android.gms.auth.api.identity.SignInCredential;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.DriveScopes;
+
+import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
     private final static String TAG = MainActivity.class.getSimpleName();
     private static final int REQ_ONE_TAP = 2;
+
+    private static final String APPLICATION_NAME = "library-gdrive-testapp";
+    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
     private SignInClient oneTapClient;
     private BeginSignInRequest signInRequest;
@@ -42,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
                             .setFilterByAuthorizedAccounts(false)
                             .build())
                     // Automatically sign in when exactly one credential is retrieved.
-                    .setAutoSelectEnabled(true)
+                    .setAutoSelectEnabled(false)
                     .build();
 
             oneTapClient.beginSignIn(signInRequest)
@@ -63,10 +81,49 @@ public class MainActivity extends AppCompatActivity {
                         public void onFailure(@NonNull Exception e) {
                             // No saved credentials found. Launch the One Tap sign-up flow, or
                             // do nothing and continue presenting the signed-out UI.
-                            Log.d(TAG, e.getLocalizedMessage());
+                            Log.d(TAG, "OneTapClient signing failure: " + e.getLocalizedMessage());
                         }
                     });
         });
 
+        Button checkSignInButton = findViewById(R.id.button_check_sign_in);
+        checkSignInButton.setOnClickListener(v -> {
+            GoogleSignInAccount signInAccount = GoogleSignIn.getLastSignedInAccount(this);
+            if (signInAccount == null) {
+                Log.d(TAG, "signInAccount is null");
+            } else {
+                Log.d(TAG, "signInAccount is not null!!");
+            }
+        });
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case REQ_ONE_TAP:
+                try {
+                    SignInCredential credential = oneTapClient.getSignInCredentialFromIntent(data);
+                    String idToken = credential.getGoogleIdToken();
+                    String username = credential.getId();
+                    String password = credential.getPassword();
+                    if (idToken !=  null) {
+                        // Got an ID token from Google. Use it to authenticate
+                        // with your backend.
+                        Log.d(TAG, "Got ID token.");
+                    } else if (password != null) {
+                        // Got a saved username and password. Use them to authenticate
+                        // with your backend.
+                        Log.d(TAG, "Got password.");
+                    }
+
+                } catch (ApiException e) {
+                    // ...
+                    Log.d(TAG, "ApiException:" + e.getLocalizedMessage());
+                }
+                break;
+        }
     }
 }
