@@ -45,6 +45,10 @@ public class ReadRawResourceTest {
 
             assertEquals(webClientId, "381939286653-uflnts066ijk9l8v6a462lc9tm9eq83k.apps.googleusercontent.com");
             assertEquals(clientSecret, "h7ZgXo4eJfo07SGwgNRHzeKZ");
+
+            GDConfig.GDAuthConfigData configData = GDConfig.get().getAuthConfigData(appContext);
+            assertEquals(webClientId, configData.webClientId);
+            assertEquals(clientSecret, configData.clientSecret);
         }
 
     }

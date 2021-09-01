@@ -1,10 +1,8 @@
 package com.romanpulov.library.gdrive;
 
 import android.app.Activity;
-import android.content.res.Resources;
-
+import org.json.JSONException;
 import java.io.IOException;
-import java.io.InputStream;
 
 public class GDInteractiveAuthenticationAction extends GDAbstractAction<Boolean>{
     private static final String TAG = GDInteractiveAuthenticationAction.class.getSimpleName();
@@ -13,13 +11,12 @@ public class GDInteractiveAuthenticationAction extends GDAbstractAction<Boolean>
 
     @Override
     public void execute() {
-        try (InputStream inputStream = mActivity.getResources().openRawResource(GDConfig.get().getConfigResId()))
-        {
+        try {
+            GDConfig.GDAuthConfigData configData = GDConfig.get().getAuthConfigData(mActivity);
 
-        } catch (IOException e) {
+        } catch (IOException | JSONException e) {
             notifyError(e);
         }
-
     }
 
     public GDInteractiveAuthenticationAction(Activity activity, OnGDActionListener<Boolean> gdActionListener) {
