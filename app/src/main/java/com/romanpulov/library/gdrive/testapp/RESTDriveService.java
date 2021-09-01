@@ -2,12 +2,22 @@ package com.romanpulov.library.gdrive.testapp;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Application;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.ActivityResultRegistry;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LifecycleOwner;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -60,7 +70,7 @@ public class RESTDriveService implements OnSuccessListener<GoogleSignInAccount>,
         private static final String DB_NAME = "prana_breath.sqlite";
         private static final String SQLITE_MIME = "application/x-sqlite3";
 
-        private Activity mActivity;
+        private AppCompatActivity mActivity;
 
         private int mNextGoogleApiOperation = -1;
 
@@ -68,7 +78,7 @@ public class RESTDriveService implements OnSuccessListener<GoogleSignInAccount>,
         private long mTokenExpired;
         private String mAuthCode;
 
-        public RESTDriveService(final Activity activity) {
+        public RESTDriveService(final AppCompatActivity activity) {
             mActivity = activity;
         }
 
@@ -82,53 +92,31 @@ public class RESTDriveService implements OnSuccessListener<GoogleSignInAccount>,
 
         public final void connectAndStartOperation(final int nextOperation) {
             mNextGoogleApiOperation = nextOperation;
-
-            if (mAuthCode == null) {
-                GoogleSignInAccount signInAccount = GoogleSignIn.getLastSignedInAccount(mActivity);
-                if (signInAccount == null) {
-                    Log.d(TAG, "Need to sign in");
-                    final GoogleSignInOptions signInOptions =
-                            new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                                    .requestEmail()
-                                    .requestScopes(new Scope(SCOPE_DRIVE))
-                                    .requestServerAuthCode(mActivity.getString(R.string.default_web_client_id))
-                                    .build();
-
-                    final GoogleSignInClient client = GoogleSignIn.getClient(mActivity, signInOptions);
-
-                    mActivity.startActivityForResult(client.getSignInIntent(), REQUEST_CODE_SIGN_IN);
-                } else {
-                    final GoogleSignInOptions signInOptions =
-                            new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                                    .requestEmail()
-                                    .requestScopes(new Scope(SCOPE_DRIVE))
-                                    .requestServerAuthCode(mActivity.getString(R.string.default_web_client_id))
-                                    .build();
-
-                    final GoogleSignInClient client = GoogleSignIn.getClient(mActivity, signInOptions);
-
-                    Log.d(TAG, "Silently signing in");
-
-                    client.silentSignIn().addOnSuccessListener(new OnSuccessListener<GoogleSignInAccount>() {
-                        @Override
-                        public void onSuccess(GoogleSignInAccount googleSignInAccount) {
-                            mAuthCode = googleSignInAccount.getServerAuthCode();
-                            Log.d(TAG, "Silent sign-in success, authCode:" + mAuthCode);
-                            onGoogleDriveConnected(mNextGoogleApiOperation);
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.d(TAG, "Silent sign-in failure:" + e.getMessage());
-                        }
-                    });
-
-                }
+            GoogleSignInAccount signInAccount = GoogleSignIn.getLastSignedInAccount(mActivity);
+            if (signInAccount == null) {
+                Log.d(TAG, "Need to sign in");
+                internalSignIn();
             } else {
-                Log.d(TAG, "Sign in not needed, account available");
-                onGoogleDriveConnected(mNextGoogleApiOperation);
-                mNextGoogleApiOperation = -1;
+                final GoogleSignInOptions signInOptions =
+                        new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                                .requestEmail()
+                                .requestScopes(new Scope(SCOPE_DRIVE))
+                                .requestServerAuthCode(mActivity.getString(R.string.default_web_client_id))
+                                .build();
+
+                final GoogleSignInClient client = GoogleSignIn.getClient(mActivity, signInOptions);
+
+                Log.d(TAG, "Silently signing in");
+
+                client.silentSignIn().addOnSuccessListener(new OnSuccessListener<GoogleSignInAccount>() {
+                    @Override
+                    public void onSuccess(GoogleSignInAccount googleSignInAccount) {
+                        mAuthCode = googleSignInAccount.getServerAuthCode();
+                        Log.d(TAG, "Silent sign-in success, authCode:" + mAuthCode);
+                        onGoogleDriveConnected(mNextGoogleApiOperation);
+                    }
+                })
+                .addOnFailureListener(e -> Log.d(TAG, "Silent sign-in failure:" + e.getMessage()));
             }
         }
 
@@ -139,6 +127,19 @@ public class RESTDriveService implements OnSuccessListener<GoogleSignInAccount>,
                         .addOnFailureListener(this);
             }
         }
+
+    private void internalSignIn() {
+        final GoogleSignInOptions signInOptions =
+                new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                        .requestEmail()
+                        .requestScopes(new Scope(SCOPE_DRIVE))
+                        .requestServerAuthCode(mActivity.getString(R.string.default_web_client_id))
+                        .build();
+
+        final GoogleSignInClient client = GoogleSignIn.getClient(mActivity, signInOptions);
+
+        mActivity.startActivityForResult(client.getSignInIntent(), REQUEST_CODE_SIGN_IN);
+    }
 
 //--------------------------------------------------------------------------------------------------
 //  Event handlers

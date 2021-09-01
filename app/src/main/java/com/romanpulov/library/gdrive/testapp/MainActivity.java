@@ -1,11 +1,15 @@
 package com.romanpulov.library.gdrive.testapp;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.content.IntentSender;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -48,7 +52,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.concurrent.Executors;
 
-public class MainActivity extends AppCompatActivity {
+    public class MainActivity extends AppCompatActivity {
     private final static String TAG = MainActivity.class.getSimpleName();
 
     private static final int REQUEST_CODE_SIGN_IN = 1;
@@ -172,6 +176,11 @@ public class MainActivity extends AppCompatActivity {
         restServiceButton.setOnClickListener(v -> {
 
             rs.connectAndStartOperation(0);
+
+        });
+
+        Button gdLogin = findViewById(R.id.button_gd_login);
+        gdLogin.setOnClickListener(v -> {
 
         });
 
