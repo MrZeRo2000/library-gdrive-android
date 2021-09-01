@@ -11,7 +11,9 @@ public class GDHelper extends GDBaseHelper {
 
     private static GDHelper instance;
 
-    private GDHelper() {}
+    private GDHelper() {
+        super();
+    }
 
     public static GDHelper getInstance() {
         if (instance == null) {

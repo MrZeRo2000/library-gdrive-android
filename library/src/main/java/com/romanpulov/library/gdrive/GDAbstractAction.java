@@ -11,9 +11,21 @@ public abstract class GDAbstractAction<D> {
         this.mGDActionListener = mGDActionListener;
     }
 
-    public GDAbstractAction(OnGDActionListener<D> mGDActionListener) {
-        this.mGDActionListener = mGDActionListener;
+    public GDAbstractAction(OnGDActionListener<D> gdActionListener) {
+        this.mGDActionListener = gdActionListener;
     }
 
     public abstract void execute();
+
+    protected void notifyError(Exception e) {
+        if (mGDActionListener != null) {
+            mGDActionListener.onActionFailure(e);
+        }
+    }
+
+    protected void notifySuccess(D data) {
+        if (mGDActionListener != null) {
+            mGDActionListener.onActionSuccess(data);
+        }
+    }
 }
