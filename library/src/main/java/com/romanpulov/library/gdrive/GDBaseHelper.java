@@ -12,4 +12,8 @@ public abstract class GDBaseHelper {
     public void login(Activity activity, OnGDActionListener<Void> callback) {
         GDActionExecutor.execute(new GDInteractiveAuthenticationAction(activity, callback));
     }
+
+    public void logout(Activity activity, OnGDActionListener<Void> callback) {
+        GDActionExecutor.execute(new GDSignOutAction(activity, callback));
+    }
 }

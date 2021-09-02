@@ -180,6 +180,10 @@ import java.util.concurrent.Executors;
 
         });
 
+        setupGDLibraryButtons();
+    }
+
+    private void setupGDLibraryButtons() {
         Button gdLogin = findViewById(R.id.button_gd_login);
         gdLogin.setOnClickListener(v -> {
             GDHelper.getInstance().login(this, new OnGDActionListener<Void>() {
@@ -195,6 +199,20 @@ import java.util.concurrent.Executors;
             });
         });
 
+        Button gdLogout = findViewById(R.id.button_gd_logout);
+        gdLogout.setOnClickListener( v -> {
+            GDHelper.getInstance().logout(this, new OnGDActionListener<Void>() {
+                @Override
+                public void onActionSuccess(Void data) {
+                    Toast.makeText(MainActivity.this, "Successfully signed out", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onActionFailure(Exception exception) {
+                    Toast.makeText(MainActivity.this, "Error signing out:" + exception.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
     }
 
     @Override
@@ -277,6 +295,7 @@ import java.util.concurrent.Executors;
                 new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                         .build();
         GoogleSignInClient client = GoogleSignIn.getClient(this, signInOptions);
+        /*
         client.revokeAccess().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void unused) {
@@ -290,7 +309,8 @@ import java.util.concurrent.Executors;
                     }
                 });
 
-        /*
+
+         */
         client.signOut().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void unused) {
@@ -303,7 +323,5 @@ import java.util.concurrent.Executors;
                 Log.d(TAG, "Signed out error: " + e.getMessage());
             }
         });
-
-         */
     }
 }
