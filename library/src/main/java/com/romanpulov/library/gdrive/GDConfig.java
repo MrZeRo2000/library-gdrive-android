@@ -16,36 +16,52 @@ import java.io.InputStream;
  */
 public class GDConfig {
     private int mConfigResId;
-    private String mScope;
 
     public int getConfigResId() {
         return mConfigResId;
     }
 
+    private String mScope;
+
     public String getScope() {
         return mScope;
     }
 
+    private int mAuthRequestCode;
+
+    public int getAuthRequestCode() {
+        return mAuthRequestCode;
+    }
+
     public static class GDAuthConfigData {
-        public final String webClientId;
-        public final String clientSecret;
+        private final String mWebClientId;
+        private final String mClientSecret;
+
+        public String getWebClientId() {
+            return mWebClientId;
+        }
+
+        public String getClientSecret() {
+            return mClientSecret;
+        }
 
         public GDAuthConfigData(String webClientId, String clientSecret) {
-            this.webClientId = webClientId;
-            this.clientSecret = clientSecret;
+            this.mWebClientId = webClientId;
+            this.mClientSecret = clientSecret;
         }
     }
 
     private static GDConfig instance;
 
-    private GDConfig(int mConfigResId, String mScope) {
-        this.mConfigResId = mConfigResId;
-        this.mScope = mScope;
+    private GDConfig(int configResId, String scope, int authRequestCode) {
+        this.mConfigResId = configResId;
+        this.mScope = scope;
+        this.mAuthRequestCode = authRequestCode;
     }
 
-    public static GDConfig configure(int configResId, String scope) {
+    public static GDConfig configure(int configResId, String scope, int authRequestCode) {
         if (instance == null) {
-            instance = new GDConfig(configResId, scope);
+            instance = new GDConfig(configResId, scope, authRequestCode);
         } else {
             instance.mConfigResId = configResId;
             instance.mScope = scope;

@@ -45,6 +45,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.FileList;
+import com.romanpulov.library.gdrive.OnGDActionListener;
 
 import org.json.JSONObject;
 
@@ -181,7 +182,17 @@ import java.util.concurrent.Executors;
 
         Button gdLogin = findViewById(R.id.button_gd_login);
         gdLogin.setOnClickListener(v -> {
+            GDHelper.getInstance().login(this, new OnGDActionListener<Void>() {
+                @Override
+                public void onActionSuccess(Void data) {
+                    //never executed
+                }
 
+                @Override
+                public void onActionFailure(Exception exception) {
+                    Toast.makeText(MainActivity.this, "Error signing in:" + exception.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
         });
 
     }
@@ -189,6 +200,7 @@ import java.util.concurrent.Executors;
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        GDHelper.handleActivityResult(this, requestCode, resultCode, data);
 
         switch (requestCode) {
             case REQ_ONE_TAP:
