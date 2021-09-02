@@ -34,8 +34,9 @@ public class GDHelper extends GDBaseHelper {
     public static void handleActivityResult(Context context, int requestCode, int resultCode, @Nullable Intent data) {
         if (requestCode == REQUEST_CODE_SIGN_IN) {
             GoogleSignIn.getSignedInAccountFromIntent(data)
-                    .addOnSuccessListener(command -> {
+                    .addOnSuccessListener(account -> {
                         Toast.makeText(context, "Signed in", Toast.LENGTH_SHORT).show();
+                        GDHelper.getInstance().setServerAuthCode(account.getServerAuthCode());
                     })
                     .addOnFailureListener(e -> {
                         Toast.makeText(context, "Error signing in:" + e.getMessage(), Toast.LENGTH_SHORT).show();

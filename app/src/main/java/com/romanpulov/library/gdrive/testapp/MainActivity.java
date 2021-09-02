@@ -213,6 +213,23 @@ import java.util.concurrent.Executors;
                 }
             });
         });
+
+        Button gdListItems = findViewById(R.id.button_gd_list_items);
+        gdListItems.setOnClickListener(v -> {
+            GDHelper.getInstance().listItems(this, "", new OnGDActionListener<JSONObject>() {
+                @Override
+                public void onActionSuccess(JSONObject data) {
+                    Toast.makeText(MainActivity.this, "Got items", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "Got some items:" + data.toString());
+                }
+
+                @Override
+                public void onActionFailure(Exception exception) {
+                    Toast.makeText(MainActivity.this, "Error getting items:" + exception.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "Error getting items:" + exception.getMessage());
+                }
+            });
+        });
     }
 
     @Override

@@ -63,5 +63,13 @@
         app:layout_constraintStart_toEndOf="@+id/button_gd_login"
         app:layout_constraintTop_toTopOf="@+id/button_gd_login" />
 
+    <Button
+        android:id="@+id/button_gd_list_items"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="2dp"
+        android:text="GD list items"
+        app:layout_constraintStart_toEndOf="@+id/button_gd_logout"
+        app:layout_constraintTop_toTopOf="@+id/button_gd_login" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
