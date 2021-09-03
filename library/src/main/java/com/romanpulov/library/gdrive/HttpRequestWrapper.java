@@ -38,6 +38,15 @@ public class HttpRequestWrapper {
         }
     }
 
+    /**
+     * Post request with content type
+     * @param context Context
+     * @param url url
+     * @param contentType content type
+     * @param body body
+     * @param responseListener success response listener
+     * @param errorListener failure response listener
+     */
     public static void executePostRequest(
             @NonNull final Context context,
             @NonNull final String url,
@@ -72,4 +81,42 @@ public class HttpRequestWrapper {
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         queue.add(request);
     };
+
+    /**
+     * Get JSON request with access token
+     * @param context Context
+     * @param url url
+     * @param accessToken access token
+     * @param responseListener success listener
+     * @param errorListener error listener
+     */
+    public static void executeGetJSONTokenRequest(
+            @NonNull final Context context,
+            @NonNull final String url,
+            @NonNull final String accessToken,
+            @NonNull final Response.Listener<JSONObject> responseListener,
+            @NonNull final Response.ErrorListener errorListener) {
+
+        RequestQueue queue = Volley.newRequestQueue(context);
+        JSONObject parameters = new JSONObject();
+        final Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", "Bearer " + accessToken);
+
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url,
+                parameters, responseListener, errorListener) {
+            @Override
+            public Map<String, String> getHeaders() {
+                return headers;
+            }
+        };
+
+        Log.d(TAG, "Adding HTTP GET to Queue, Request: " + request.toString() + ", headers:" + headers);
+
+        request.setRetryPolicy(new DefaultRetryPolicy(
+                3000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        queue.add(request);
+    };
+
 }

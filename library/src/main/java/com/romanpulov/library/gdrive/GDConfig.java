@@ -27,11 +27,13 @@ public class GDConfig {
         return mScope;
     }
 
-    private int mAuthRequestCode;
+    private final int mAuthRequestCode;
 
     public int getAuthRequestCode() {
         return mAuthRequestCode;
     }
+
+    private GDAuthConfigData mGDAuthConfigData;
 
     public static class GDAuthConfigData {
         private final String mWebClientId;
@@ -77,10 +79,17 @@ public class GDConfig {
         return instance;
     }
 
-    public GDAuthConfigData getAuthConfigData(Context context) throws IOException, JSONException {
+    public GDAuthConfigData getAuthConfigData(Context context) {
+        if (mGDAuthConfigData == null) {
+            mGDAuthConfigData = createAuthConfigData(context);
+        }
+        return mGDAuthConfigData;
+    }
+
+    private GDAuthConfigData createAuthConfigData(Context context) {
         try (
                 InputStream inputStream = context.getResources().openRawResource(GDConfig.get().getConfigResId());
-                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream()
         )
         {
             FileUtils.copyStream(inputStream, outputStream);
@@ -91,6 +100,8 @@ public class GDConfig {
                     json.getString("web_client_id"),
                     json.getString("client_secret")
             );
+        } catch (IOException | JSONException e) {
+            return null;
         }
     }
 }

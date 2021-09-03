@@ -17,23 +17,18 @@ public class GDInteractiveAuthenticationAction extends GDAbstractAction<Void>{
 
     @Override
     public void execute() {
-        try {
-            GDConfig.GDAuthConfigData configData = GDConfig.get().getAuthConfigData(mActivity);
+        GDConfig.GDAuthConfigData configData = GDConfig.get().getAuthConfigData(mActivity);
 
-            final GoogleSignInOptions signInOptions =
-                    new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                            .requestEmail()
-                            .requestScopes(new Scope(GDConfig.get().getScope()))
-                            .requestServerAuthCode(configData.getWebClientId())
-                            .build();
+        final GoogleSignInOptions signInOptions =
+                new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                        .requestEmail()
+                        .requestScopes(new Scope(GDConfig.get().getScope()))
+                        .requestServerAuthCode(configData.getWebClientId())
+                        .build();
 
-            final GoogleSignInClient client = GoogleSignIn.getClient(mActivity, signInOptions);
+        final GoogleSignInClient client = GoogleSignIn.getClient(mActivity, signInOptions);
 
-            mActivity.startActivityForResult(client.getSignInIntent(), GDConfig.get().getAuthRequestCode());
-
-        } catch (IOException | JSONException e) {
-            notifyError(e);
-        }
+        mActivity.startActivityForResult(client.getSignInIntent(), GDConfig.get().getAuthRequestCode());
     }
 
     public GDInteractiveAuthenticationAction(Activity activity, OnGDActionListener<Void> gdActionListener) {

@@ -5,6 +5,7 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -35,32 +36,35 @@ public abstract class GDAbstractTokenRequiresAction<D> extends GDAbstractAuthCod
             Log.d(TAG, "Token is not available, obtaining");
             GDAuthData.clearAccessToken();
 
-            try {
-                String postString = String.format(
-                        "code=%s&client_id=%s&client_secret=%s&redirect_uri=&grant_type=authorization_code",
-                        GDAuthData.mAuthCode.get(),
-                        GDConfig.get().getAuthConfigData(mActivity).getWebClientId(),
-                        GDConfig.get().getAuthConfigData(mActivity).getClientSecret()
-                );
-                byte[] postData = postString.getBytes(StandardCharsets.UTF_8);
+            String postString = String.format(
+                    "code=%s&client_id=%s&client_secret=%s&redirect_uri=&grant_type=authorization_code",
+                    GDAuthData.mAuthCode.get(),
+                    GDConfig.get().getAuthConfigData(mActivity).getWebClientId(),
+                    GDConfig.get().getAuthConfigData(mActivity).getClientSecret()
+            );
+            byte[] postData = postString.getBytes(StandardCharsets.UTF_8);
 
-                HttpRequestWrapper.executePostRequest(
-                        mActivity,
-                        "https://oauth2.googleapis.com/token",
-                        "application/x-www-form-urlencoded",
-                        postData,
-                        response -> {
-                            Log.d(TAG, "Got response:" + response);
+            HttpRequestWrapper.executePostRequest(
+                    mActivity,
+                    "https://oauth2.googleapis.com/token",
+                    "application/x-www-form-urlencoded",
+                    postData,
+                    response -> {
+                        Log.d(TAG, "Got response:" + response);
+                        try {
+                            JSONObject jsonResponse = new JSONObject(response);
+                            GDAuthData.mAccessToken.set(jsonResponse.getString("access_token"));
+
+                            Log.d(TAG, "Got the token");
                             executeWithToken();
-                        },
-                        error -> {
-                            notifyError(HttpRequestException.fromVolleyError(error));
+                        } catch (JSONException e) {
+                            notifyError(e);
                         }
-                );
-
-            } catch (IOException | JSONException e) {
-                notifyError(e);
-            }
+                    },
+                    error -> {
+                        notifyError(HttpRequestException.fromVolleyError(error));
+                    }
+            );
 
         }
     }
