@@ -42,6 +42,7 @@ public abstract class GDAbstractTokenRequiresAction<D> extends GDAbstractAuthCod
                     GDConfig.get().getAuthConfigData(mActivity).getWebClientId(),
                     GDConfig.get().getAuthConfigData(mActivity).getClientSecret()
             );
+            Log.d(TAG, "Post string:" + postString);
             byte[] postData = postString.getBytes(StandardCharsets.UTF_8);
 
             HttpRequestWrapper.executePostRequest(
@@ -54,6 +55,7 @@ public abstract class GDAbstractTokenRequiresAction<D> extends GDAbstractAuthCod
                         try {
                             JSONObject jsonResponse = new JSONObject(response);
                             GDAuthData.mAccessToken.set(jsonResponse.getString("access_token"));
+                            GDAuthData.mAccessTokenExpireTime.set(SystemClock.elapsedRealtime() + jsonResponse.getLong("expires_in") * 1000);
 
                             Log.d(TAG, "Got the token");
                             executeWithToken();

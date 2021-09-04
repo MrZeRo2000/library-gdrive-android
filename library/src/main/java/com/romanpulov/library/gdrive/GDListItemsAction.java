@@ -12,8 +12,6 @@ import java.nio.charset.StandardCharsets;
 public class GDListItemsAction extends GDAbstractTokenRequiresAction<JSONObject> {
     private final static String TAG = GDListItemsAction.class.getSimpleName();
 
-    private final String mPath;
-
     @Override
     protected void executeWithToken() {
         Log.d(TAG, "Executing with token");
@@ -40,8 +38,7 @@ public class GDListItemsAction extends GDAbstractTokenRequiresAction<JSONObject>
 
     }
 
-    public GDListItemsAction(Activity activity, String path, OnGDActionListener<JSONObject> gdActionListener) {
+    public GDListItemsAction(Activity activity, OnGDActionListener<JSONObject> gdActionListener) {
         super(activity, gdActionListener);
-        this.mPath = path;
     }
 }

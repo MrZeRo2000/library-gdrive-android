@@ -23,7 +23,7 @@ public abstract class GDBaseHelper {
         GDActionExecutor.execute(new GDSignOutAction(activity, callback));
     }
 
-    public void listItems(Activity activity, String path, OnGDActionListener<JSONObject> callback) {
-        GDActionExecutor.execute(new GDListItemsAction(activity, path, callback));
+    public void listItems(Activity activity, OnGDActionListener<JSONObject> callback) {
+        GDActionExecutor.execute(new GDListItemsAction(activity, callback));
     }
 }

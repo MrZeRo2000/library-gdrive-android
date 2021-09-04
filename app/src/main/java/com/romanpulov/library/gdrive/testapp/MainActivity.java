@@ -216,7 +216,7 @@ import java.util.concurrent.Executors;
 
         Button gdListItems = findViewById(R.id.button_gd_list_items);
         gdListItems.setOnClickListener(v -> {
-            GDHelper.getInstance().listItems(this, "", new OnGDActionListener<JSONObject>() {
+            GDHelper.getInstance().listItems(this, new OnGDActionListener<JSONObject>() {
                 @Override
                 public void onActionSuccess(JSONObject data) {
                     Toast.makeText(MainActivity.this, "Got items", Toast.LENGTH_SHORT).show();
