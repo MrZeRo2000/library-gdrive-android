@@ -83,6 +83,53 @@ public class HttpRequestWrapper {
     };
 
     /**
+     * Post request with content type
+     * @param context Context
+     * @param url url
+     * @param contentType content type
+     * @param body body
+     * @param responseListener success response listener
+     * @param errorListener failure response listener
+     */
+    public static void executePostRequest(
+            @NonNull final Context context,
+            @NonNull final String url,
+            @NonNull final String accessToken,
+            @NonNull final String contentType,
+            @NonNull final byte[] body,
+            @NonNull final Response.Listener<String> responseListener,
+            @NonNull final Response.ErrorListener errorListener) {
+
+        RequestQueue queue = Volley.newRequestQueue(context);
+
+        StringRequest request = new StringRequest(Request.Method.POST, url,
+                responseListener, errorListener) {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", contentType);
+                headers.put("Authorization", "Bearer " + accessToken);
+                return headers;
+            }
+
+            @Override
+            public byte[] getBody() throws AuthFailureError {
+                return body;
+            }
+
+        };
+
+        Log.d(TAG, "Adding HTTP POST to Queue, Request: " + request.toString());
+
+        request.setRetryPolicy(new DefaultRetryPolicy(
+                3000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        queue.add(request);
+    };
+
+
+    /**
      * Get JSON request with access token
      * @param context Context
      * @param url url

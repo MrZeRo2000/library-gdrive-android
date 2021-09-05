@@ -45,6 +45,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.FileList;
+import com.romanpulov.library.gdrive.GDGetOrCreateFolderAction;
 import com.romanpulov.library.gdrive.OnGDActionListener;
 
 import org.json.JSONObject;
@@ -229,6 +230,24 @@ import java.util.concurrent.Executors;
                     Log.d(TAG, "Error getting items:" + exception.getMessage());
                 }
             });
+        });
+
+        Button gdCreateReplaceFolder = findViewById(R.id.button_gd_create_replace_folder);
+        gdCreateReplaceFolder.setOnClickListener(v -> {
+            GDHelper.getInstance();
+            new GDGetOrCreateFolderAction(MainActivity.this, "AndroidBackupTest", new OnGDActionListener<String>() {
+                @Override
+                public void onActionSuccess(String data) {
+                    Toast.makeText(MainActivity.this, "Executed successfully, data:" + data.toString(), Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "Executed successfully, data:" + data.toString());
+                }
+
+                @Override
+                public void onActionFailure(Exception exception) {
+                    Toast.makeText(MainActivity.this, "Error:" + exception.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "Error:" + exception.getMessage());
+                }
+            }).execute();
         });
     }
 
