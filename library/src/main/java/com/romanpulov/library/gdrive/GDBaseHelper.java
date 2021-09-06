@@ -35,11 +35,11 @@ public abstract class GDBaseHelper {
     public void putFiles(Activity activity, String path, File[] files, OnGDActionListener<Void> callback) {
         new GDGetOrCreateFolderAction(activity, path, new OnGDActionListener<String>() {
             @Override
-            public void onActionSuccess(String data) {
-                new GDListItemsAction(activity, data, new OnGDActionListener<JSONObject>() {
+            public void onActionSuccess(String folderId) {
+                new GDListItemsAction(activity, folderId, new OnGDActionListener<JSONObject>() {
                     @Override
-                    public void onActionSuccess(JSONObject data) {
-                        Log.d(TAG, "Got list items data:" + data.toString());
+                    public void onActionSuccess(JSONObject folderItems) {
+                        Log.d(TAG, "Got list items data:" + folderItems.toString() + ", folderId:" + folderId);
                         callback.onActionSuccess(null);
                     }
 
