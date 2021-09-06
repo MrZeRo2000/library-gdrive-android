@@ -81,5 +81,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button_gd_login" />
 
+    <Button
+        android:id="@+id/button_gd_put_files"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="2dp"
+        android:text="GD put files"
+        app:layout_constraintStart_toEndOf="@+id/button_gd_create_replace_folder"
+        app:layout_constraintTop_toTopOf="@+id/button_gd_create_replace_folder" />
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

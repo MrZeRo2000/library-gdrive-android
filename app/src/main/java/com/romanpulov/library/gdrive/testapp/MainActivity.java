@@ -249,6 +249,23 @@ import java.util.concurrent.Executors;
                 }
             }).execute();
         });
+
+        Button gdPutFiles = findViewById(R.id.button_gd_put_files);
+        gdPutFiles.setOnClickListener( v -> {
+            GDHelper.getInstance().putFiles(MainActivity.this, "AndroidBackupFolder", null, new OnGDActionListener<Void>() {
+                @Override
+                public void onActionSuccess(Void data) {
+                    Toast.makeText(MainActivity.this, "Executed successfully", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "Executed successfully");
+                }
+
+                @Override
+                public void onActionFailure(Exception exception) {
+                    Toast.makeText(MainActivity.this, "Error:" + exception.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "Error:" + exception.getMessage());
+                }
+            });
+        });
     }
 
     @Override
