@@ -18,6 +18,7 @@ import com.android.volley.toolbox.Volley;
 
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.json.JSONObject;
 
@@ -82,27 +83,20 @@ public class HttpRequestWrapper {
         queue.add(request);
     };
 
-    /**
-     * Post request with content type
-     * @param context Context
-     * @param url url
-     * @param contentType content type
-     * @param body body
-     * @param responseListener success response listener
-     * @param errorListener failure response listener
-     */
-    public static void executePostRequest(
+    public static void executeRequest(
             @NonNull final Context context,
+                     final int method,
             @NonNull final String url,
             @NonNull final String accessToken,
             @NonNull final String contentType,
+            @Nullable Map<String, String> params,
             @NonNull final byte[] body,
             @NonNull final Response.Listener<String> responseListener,
             @NonNull final Response.ErrorListener errorListener) {
 
         RequestQueue queue = Volley.newRequestQueue(context);
 
-        StringRequest request = new StringRequest(Request.Method.POST, url,
+        StringRequest request = new StringRequest(method, url,
                 responseListener, errorListener) {
             @Override
             public Map<String, String> getHeaders() {
@@ -117,9 +111,14 @@ public class HttpRequestWrapper {
                 return body;
             }
 
+            @Nullable
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                return params;
+            }
         };
 
-        Log.d(TAG, "Adding HTTP POST to Queue, Request: " + request.toString());
+        Log.d(TAG, "Adding HTTP Request to Queue, Request: " + request.toString());
 
         request.setRetryPolicy(new DefaultRetryPolicy(
                 3000,
@@ -128,6 +127,101 @@ public class HttpRequestWrapper {
         queue.add(request);
     };
 
+    /**
+     * Post request with content type
+     * @param context Context
+     * @param url url
+     * @param contentType content type
+     * @param body body
+     * @param responseListener success response listener
+     * @param errorListener failure response listener
+     */
+    public static void executePostRequest(
+            @NonNull final Context context,
+            @NonNull final String url,
+            @NonNull final String accessToken,
+            @NonNull final String contentType,
+            @Nullable Map<String, String> params,
+            @NonNull final byte[] body,
+            @NonNull final Response.Listener<String> responseListener,
+            @NonNull final Response.ErrorListener errorListener) {
+
+        executeRequest(
+                context,
+                Request.Method.POST,
+                url,
+                accessToken,
+                contentType,
+                params,
+                body,
+                responseListener,
+                errorListener
+        );
+    };
+
+    /**
+     * Put request with content type
+     * @param context Context
+     * @param url url
+     * @param contentType content type
+     * @param body body
+     * @param responseListener success response listener
+     * @param errorListener failure response listener
+     */
+    public static void executePutRequest(
+            @NonNull final Context context,
+            @NonNull final String url,
+            @NonNull final String accessToken,
+            @NonNull final String contentType,
+            @Nullable Map<String, String> params,
+            @NonNull final byte[] body,
+            @NonNull final Response.Listener<String> responseListener,
+            @NonNull final Response.ErrorListener errorListener) {
+
+        executeRequest(
+                context,
+                Request.Method.PUT,
+                url,
+                accessToken,
+                contentType,
+                params,
+                body,
+                responseListener,
+                errorListener
+        );
+    };
+
+    /**
+     * Patch request with content type
+     * @param context Context
+     * @param url url
+     * @param contentType content type
+     * @param body body
+     * @param responseListener success response listener
+     * @param errorListener failure response listener
+     */
+    public static void executePatchRequest(
+            @NonNull final Context context,
+            @NonNull final String url,
+            @NonNull final String accessToken,
+            @NonNull final String contentType,
+            @Nullable Map<String, String> params,
+            @NonNull final byte[] body,
+            @NonNull final Response.Listener<String> responseListener,
+            @NonNull final Response.ErrorListener errorListener) {
+
+        executeRequest(
+                context,
+                Request.Method.PATCH,
+                url,
+                accessToken,
+                contentType,
+                params,
+                body,
+                responseListener,
+                errorListener
+        );
+    };
 
     /**
      * Get JSON request with access token

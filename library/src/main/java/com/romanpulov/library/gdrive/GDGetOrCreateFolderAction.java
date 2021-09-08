@@ -70,6 +70,7 @@ public class GDGetOrCreateFolderAction extends GDAbstractTokenRequiresAction<Str
                                         postURL,
                                         GDAuthData.mAccessToken.get(),
                                         "application/json",
+                                        null,
                                         postDataBytes,
                                         postResponse -> {
                                             try {

@@ -45,12 +45,18 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.FileList;
+import com.romanpulov.library.gdrive.GDCreateOrUpdateFileAction;
 import com.romanpulov.library.gdrive.GDGetOrCreateFolderAction;
 import com.romanpulov.library.gdrive.OnGDActionListener;
 
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.concurrent.Executors;
 
@@ -265,6 +271,34 @@ import java.util.concurrent.Executors;
                     Log.d(TAG, "Error:" + exception.getMessage());
                 }
             });
+        });
+
+        Button gdCreateOrUpdateFile = findViewById(R.id.button_gd_create_or_update_file);
+        gdCreateOrUpdateFile.setOnClickListener( v -> {
+            String data = "3ee-ddHfffs";
+            try {
+                File file = new File(getFilesDir().getAbsolutePath() + File.separator + "testfilename");
+                try (FileOutputStream outputStream = new FileOutputStream(file.getAbsolutePath())) {
+                    outputStream.write(data.getBytes(StandardCharsets.UTF_8));
+                }
+
+                GDHelper.getInstance();
+                new GDCreateOrUpdateFileAction(MainActivity.this, "AndroidBackupFolderTest", file, new OnGDActionListener<String>() {
+                    @Override
+                    public void onActionSuccess(String data) {
+                        Toast.makeText(MainActivity.this, "Executed successfully", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "Executed successfully");
+                    }
+
+                    @Override
+                    public void onActionFailure(Exception exception) {
+                        Toast.makeText(MainActivity.this, "Error:" + exception.getMessage(), Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "Error:" + exception.getMessage());
+                    }
+                }).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
     }
 

@@ -22,7 +22,7 @@ public class GDListItemsAction extends GDAbstractTokenRequiresAction<JSONObject>
             String url = String.format(
                     "https://www.googleapis.com/drive/v3/files?orderBy=%s&q=%s&fields=%s&key=%s",
                     URLEncoder.encode("folder,name", String.valueOf(StandardCharsets.UTF_8)),
-                    URLEncoder.encode(String.format("parents in '%s'", mParent), String.valueOf(StandardCharsets.UTF_8)),
+                    URLEncoder.encode(String.format("parents in '%s' and trashed = false", mParent), String.valueOf(StandardCharsets.UTF_8)),
                     URLEncoder.encode("files(id,mimeType,name)", String.valueOf(StandardCharsets.UTF_8)),
                     GDConfig.get().getAuthConfigData(mActivity).getClientSecret()
             );
