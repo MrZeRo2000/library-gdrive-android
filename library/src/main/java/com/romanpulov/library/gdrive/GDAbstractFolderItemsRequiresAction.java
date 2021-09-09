@@ -3,12 +3,31 @@ package com.romanpulov.library.gdrive;
 import android.app.Activity;
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
-public abstract class GDAbstractFolderItemsRequiresAction extends GDAbstractFolderRequiresAction {
+import java.util.HashMap;
+import java.util.Map;
+
+public abstract class GDAbstractFolderItemsRequiresAction<T> extends GDAbstractFolderRequiresAction<T> {
     private final static String TAG = GDAbstractFolderItemsRequiresAction.class.getSimpleName();
 
-    protected abstract void executeWithFolderItems(String folderId, JSONObject folderItems);
+    protected abstract void executeWithFolderItems(String folderId, Map<String, String> items);
+
+    private static Map<String, String> parseFolderItems(JSONObject items) throws JSONException {
+        Map<String, String> result = new HashMap<>();
+
+        JSONArray files = (JSONArray)items.get("files");
+        for (int i = 0; i < files.length(); i++) {
+            result.put(
+                    (String)files.getJSONObject(i).get("name"),
+                    (String)files.getJSONObject(i).get("id")
+            );
+        }
+
+        return result;
+    }
 
     @Override
     protected void executeWithFolderId(String folderId) {
@@ -16,7 +35,11 @@ public abstract class GDAbstractFolderItemsRequiresAction extends GDAbstractFold
             @Override
             public void onActionSuccess(JSONObject folderItems) {
                 Log.d(TAG, "Got list items data:" + folderItems.toString() + ", folderId:" + folderId);
-                executeWithFolderItems(folderId, folderItems);
+                try {
+                    executeWithFolderItems(folderId, parseFolderItems(folderItems));
+                } catch (JSONException e) {
+                    notifyError(e);
+                }
             }
 
             @Override
@@ -26,7 +49,7 @@ public abstract class GDAbstractFolderItemsRequiresAction extends GDAbstractFold
         }).execute();
     }
 
-    public GDAbstractFolderItemsRequiresAction(Activity activity, String path, OnGDActionListener<String> gdActionListener) {
+    public GDAbstractFolderItemsRequiresAction(Activity activity, String path, OnGDActionListener<T> gdActionListener) {
         super(activity, path, gdActionListener);
     }
 }

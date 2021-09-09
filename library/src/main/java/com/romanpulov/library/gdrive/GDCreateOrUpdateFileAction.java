@@ -20,13 +20,13 @@ import java.util.Map;
 import android.util.Base64;
 import android.util.Log;
 
-public class GDCreateOrUpdateFileAction extends GDAbstractFolderItemsRequiresAction {
+public class GDCreateOrUpdateFileAction extends GDAbstractFolderItemsRequiresAction<String> {
     private final static String TAG = GDCreateOrUpdateFileAction.class.getSimpleName();
 
     private final File mFile;
 
     @Override
-    protected void executeWithFolderItems(String folderId, JSONObject folderItems) {
+    protected void executeWithFolderItems(String folderId, Map<String, String> items) {
         String boundary = "-------314159265358979323846";
         String delimiter = "\r\n--" + boundary + "\r\n";
         String close_delim = "\r\n--" + boundary + "--";
@@ -72,19 +72,7 @@ public class GDCreateOrUpdateFileAction extends GDAbstractFolderItemsRequiresAct
             Map<String, String> params = new HashMap<>();
             params.put("uploadType", "multipart");
 
-            String fileId = null;
-            try {
-                JSONArray files = (JSONArray)folderItems.get("files");
-                for (int i = 0; i < files.length(); i++) {
-                    if (files.getJSONObject(i).get("name").equals(mFile.getName())) {
-                        fileId = (String)files.getJSONObject(i).get("id");
-                        break;
-                    }
-                }
-            } catch (JSONException e) {
-                notifyError(e);
-                return;
-            }
+            String fileId = items.get(mFile.getName());
 
             if (fileId == null) {
                 String postURL = String.format(

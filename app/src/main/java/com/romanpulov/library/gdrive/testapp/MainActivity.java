@@ -57,7 +57,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.Executors;
 
     public class MainActivity extends AppCompatActivity {
@@ -258,7 +260,23 @@ import java.util.concurrent.Executors;
 
         Button gdPutFiles = findViewById(R.id.button_gd_put_files);
         gdPutFiles.setOnClickListener( v -> {
-            GDHelper.getInstance().putFiles(MainActivity.this, "AndroidBackupFolder", null, new OnGDActionListener<Void>() {
+            //generate files
+            String[] fileStrings = new String[] {"1-dfwkerkwerw", "2-6,vdfgdfg", "3-gkkkrk444", "4-,fkfkfkdrtrrewwerwer"};
+            File[] files = new File[fileStrings.length];
+
+            for (int i = 0; i < fileStrings.length; i++) {
+                try {
+                    File file = new File(getFilesDir().getAbsolutePath() + File.separator + "testfilename_" + i);
+                    try (FileOutputStream outputStream = new FileOutputStream(file.getAbsolutePath())) {
+                        outputStream.write(fileStrings[i].getBytes(StandardCharsets.UTF_8));
+                    }
+                    files[i] = file;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            GDHelper.getInstance().putFiles(MainActivity.this, "AndroidBackupFolder", files, new OnGDActionListener<Void>() {
                 @Override
                 public void onActionSuccess(Void data) {
                     Toast.makeText(MainActivity.this, "Executed successfully", Toast.LENGTH_SHORT).show();
