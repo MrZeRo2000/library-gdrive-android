@@ -1,6 +1,7 @@
 package com.romanpulov.library.gdrive;
 
 import android.app.Activity;
+import android.content.Context;
 import android.util.Base64;
 import android.util.Log;
 
@@ -41,39 +42,16 @@ public class GDPutFilesAction extends GDAbstractFolderItemsRequiresAction<Void> 
 
                 try (
                         InputStream inputStream = new FileInputStream(f);
-                        ByteArrayOutputStream outputStreamStream = new ByteArrayOutputStream();
+                        ByteArrayOutputStream outputStreamStream = new ByteArrayOutputStream()
                 ) {
                     FileUtils.copyStream(inputStream, outputStreamStream);
                     byte[] base64Data = Base64.encode(outputStreamStream.toByteArray(), Base64.DEFAULT);
                     String base64String = new String(base64Data, StandardCharsets.UTF_8);
 
-                    JSONObject metadataObject = new JSONObject();
-
-                    metadataObject.put("name", f.getName());
-                    metadataObject.put("mimeType", "application/octet-stream");
-
-                    JSONArray parentsArray = new JSONArray();
-                    parentsArray.put(folderId);
-                    metadataObject.put("parents", parentsArray);
-
-                    String metadata = metadataObject.toString();
-                    Log.d(TAG, "Metadata:" + metadata);
-
                     String boundary = "-------314159265358979323846";
                     String delimiter = "\r\n--" + boundary + "\r\n";
                     String closeDelimiter = "\r\n--" + boundary + "--";
                     String contentType = "application/octet-stream";
-
-                    String multipartRequestBody =
-                            delimiter +
-                                    "Content-Type: application/json\r\n\r\n" +
-                                    metadata +
-                                    delimiter +
-                                    "Content-Type: " + contentType + "\r\n" +
-                                    "Content-Transfer-Encoding: base64\r\n" +
-                                    "\r\n" +
-                                    base64String +
-                                    closeDelimiter;
 
                     Map<String, String> params = new HashMap<>();
                     params.put("uploadType", "multipart");
@@ -81,10 +59,34 @@ public class GDPutFilesAction extends GDAbstractFolderItemsRequiresAction<Void> 
                     String fileId = items.get(f.getName());
 
                     if (fileId == null) {
+                        //New file, POST request
+
                         String postURL = String.format(
                                 "https://www.googleapis.com/upload/drive/v3/files?key=%s?uploadType=multipart",
                                 GDConfig.get().getAuthConfigData(mActivity).getClientSecret()
                         );
+
+                        JSONObject metadataObject = new JSONObject();
+
+                        metadataObject.put("name", f.getName());
+                        metadataObject.put("mimeType", "application/octet-stream");
+
+                        JSONArray parentsArray = new JSONArray();
+                        parentsArray.put(folderId);
+                        metadataObject.put("parents", parentsArray);
+
+                        String metadata = metadataObject.toString();
+
+                        String multipartRequestBody =
+                                delimiter +
+                                        "Content-Type: application/json\r\n\r\n" +
+                                        metadata +
+                                        delimiter +
+                                        "Content-Type: " + contentType + "\r\n" +
+                                        "Content-Transfer-Encoding: base64\r\n" +
+                                        "\r\n" +
+                                        base64String +
+                                        closeDelimiter;
 
                         HttpRequestWrapper.executePostRequest(
                                 mActivity,
@@ -107,6 +109,8 @@ public class GDPutFilesAction extends GDAbstractFolderItemsRequiresAction<Void> 
                                 }
                         );
                     } else {
+                        //update file, PATCH request
+
                         String patchURL = String.format(
                                 "https://www.googleapis.com/upload/drive/v3/files/%s?uploadType=multipart",
                                 fileId

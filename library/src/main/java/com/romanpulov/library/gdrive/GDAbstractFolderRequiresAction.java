@@ -1,6 +1,7 @@
 package com.romanpulov.library.gdrive;
 
 import android.app.Activity;
+import android.content.Context;
 
 public abstract class GDAbstractFolderRequiresAction<T> extends GDAbstractTokenRequiresAction<T>{
 

@@ -1,6 +1,7 @@
 package com.romanpulov.library.gdrive;
 
 import android.app.Activity;
+import android.content.Context;
 
 import org.json.JSONObject;
 
@@ -33,6 +34,10 @@ public abstract class GDBaseHelper {
 
     public void putFiles(Activity activity, String path, File[] files, OnGDActionListener<Void> callback) {
         GDActionExecutor.execute(new GDPutFilesAction(activity, GDPathUtils.pathToFolder(path), files, callback));
+    }
+
+    public void putFiles(Activity activity, String path, File[] files) throws GDActionException {
+        GDActionExecutor.executeSync(new GDPutFilesAction(activity, GDPathUtils.pathToFolder(path), files, null));
     }
 
     public void getBytesByPath(Activity activity, String path, OnGDActionListener<byte[]> callback) {

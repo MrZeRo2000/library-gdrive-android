@@ -1,16 +1,18 @@
 package com.romanpulov.library.gdrive;
 
 import android.app.Activity;
+import android.content.Context;
 import android.util.Log;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.Scope;
+import com.google.android.gms.tasks.Tasks;
 
-import org.json.JSONException;
-
-import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 
 public abstract class GDAbstractAuthCodeRequiresAction<D> extends GDAbstractAction<D> {
     private static final String TAG = GDAbstractAuthCodeRequiresAction.class.getSimpleName();

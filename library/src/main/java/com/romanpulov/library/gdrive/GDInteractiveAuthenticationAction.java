@@ -7,9 +7,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.Scope;
 
-import org.json.JSONException;
-import java.io.IOException;
-
 public class GDInteractiveAuthenticationAction extends GDAbstractAction<Void>{
     private static final String TAG = GDInteractiveAuthenticationAction.class.getSimpleName();
 

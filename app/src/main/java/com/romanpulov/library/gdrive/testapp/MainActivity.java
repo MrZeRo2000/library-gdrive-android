@@ -36,6 +36,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.FileList;
+import com.romanpulov.library.gdrive.GDActionException;
 import com.romanpulov.library.gdrive.GDGetOrCreateFolderAction;
 import com.romanpulov.library.gdrive.OnGDActionListener;
 
@@ -46,6 +47,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
     private final static String TAG = MainActivity.class.getSimpleName();
@@ -274,6 +277,37 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "Error:" + exception.getMessage());
                 }
             });
+        });
+
+        Button gdPutFilesSync = findViewById(R.id.button_gd_put_files_sync);
+        gdPutFilesSync.setOnClickListener(v -> {
+            //generate files
+            String[] fileStrings = new String[] {"1-dfwkerkwerw", "2-6,vdfgdfg", "3-gkkkrk444", "4-,fkfkfkdrtrrewwerwer"};
+            File[] files = new File[fileStrings.length];
+
+            for (int i = 0; i < fileStrings.length; i++) {
+                try {
+                    File file = new File(getFilesDir().getAbsolutePath() + File.separator + "testfilename_" + i);
+                    try (FileOutputStream outputStream = new FileOutputStream(file.getAbsolutePath())) {
+                        outputStream.write(fileStrings[i].getBytes(StandardCharsets.UTF_8));
+                    }
+                    files[i] = file;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+
+            Executor executor = Executors.newSingleThreadExecutor();
+            executor.execute(() -> {
+                try {
+                    GDHelper.getInstance().putFiles(MainActivity.this, "AndroidBackupFolder", files);
+                } catch (GDActionException e) {
+
+                }
+            });
+
+
         });
 
         Button gdGetBytesByPath = findViewById(R.id.button_gd_get_bytes_by_path);

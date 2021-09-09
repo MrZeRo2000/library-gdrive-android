@@ -3,7 +3,6 @@ package com.romanpulov.library.gdrive;
 import android.content.Context;
 import android.util.Log;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkResponse;
 import com.android.volley.NoConnectionError;
@@ -98,7 +97,7 @@ public class HttpRequestWrapper {
             }
 
             @Override
-            public byte[] getBody() throws AuthFailureError {
+            public byte[] getBody() {
                 return body;
             }
 
@@ -111,7 +110,7 @@ public class HttpRequestWrapper {
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         queue.add(request);
-    };
+    }
 
     public static void executeRequest(
             @NonNull final Context context,
@@ -137,13 +136,13 @@ public class HttpRequestWrapper {
             }
 
             @Override
-            public byte[] getBody() throws AuthFailureError {
+            public byte[] getBody() {
                 return body;
             }
 
             @Nullable
             @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
+            protected Map<String, String> getParams(){
                 return params;
             }
         };
@@ -155,7 +154,7 @@ public class HttpRequestWrapper {
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         queue.add(request);
-    };
+    }
 
     /**
      * Post request with content type
@@ -187,7 +186,7 @@ public class HttpRequestWrapper {
                 responseListener,
                 errorListener
         );
-    };
+    }
 
     /**
      * Put request with content type
@@ -219,7 +218,7 @@ public class HttpRequestWrapper {
                 responseListener,
                 errorListener
         );
-    };
+    }
 
     /**
      * Patch request with content type
@@ -251,7 +250,7 @@ public class HttpRequestWrapper {
                 responseListener,
                 errorListener
         );
-    };
+    }
 
     /**
      * Get JSON request with access token
@@ -288,8 +287,16 @@ public class HttpRequestWrapper {
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         queue.add(request);
-    };
+    }
 
+    /**
+     * Get request returning bytes[]
+     * @param context Context
+     * @param url url
+     * @param accessToken access token
+     * @param responseListener success listener
+     * @param errorListener error listener
+     */
     public static void executeGetBytesRequest(
             @NonNull final Context context,
             @NonNull final String url,
@@ -319,6 +326,4 @@ public class HttpRequestWrapper {
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         queue.add(request);
     }
-
-
 }

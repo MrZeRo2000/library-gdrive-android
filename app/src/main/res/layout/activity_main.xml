@@ -87,16 +87,16 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="2dp"
         android:text="GD put files"
-        app:layout_constraintStart_toEndOf="@+id/button_gd_create_replace_folder"
-        app:layout_constraintTop_toTopOf="@+id/button_gd_create_replace_folder" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_gd_create_replace_folder" />
 
     <Button
-        android:id="@+id/button_gd_create_or_update_file"
+        android:id="@+id/button_gd_put_files_sync"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="2dp"
-        android:text="GD create or update file"
-        app:layout_constraintStart_toStartOf="parent"
+        android:text="GD put files (sync)"
+        app:layout_constraintStart_toEndOf="@+id/button_gd_put_files"
         app:layout_constraintTop_toBottomOf="@+id/button_gd_create_replace_folder" />
 
     <Button
@@ -106,7 +106,7 @@
         android:layout_marginLeft="2dp"
         android:text="GD get bytes by path"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_gd_create_or_update_file" />
+        app:layout_constraintTop_toBottomOf="@+id/button_gd_put_files" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

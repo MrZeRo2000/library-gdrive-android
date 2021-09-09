@@ -1,6 +1,7 @@
 package com.romanpulov.library.gdrive;
 
 import android.app.Activity;
+import android.content.Context;
 import android.util.Log;
 
 import org.json.JSONObject;

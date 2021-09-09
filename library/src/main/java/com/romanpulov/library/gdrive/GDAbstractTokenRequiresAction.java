@@ -1,13 +1,13 @@
 package com.romanpulov.library.gdrive;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.SystemClock;
 import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -63,9 +63,7 @@ public abstract class GDAbstractTokenRequiresAction<D> extends GDAbstractAuthCod
                             notifyError(e);
                         }
                     },
-                    error -> {
-                        notifyError(HttpRequestException.fromVolleyError(error));
-                    }
+                    error -> notifyError(HttpRequestException.fromVolleyError(error))
             );
 
         }
