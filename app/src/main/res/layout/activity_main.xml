@@ -99,6 +99,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button_gd_create_replace_folder" />
 
+    <Button
+        android:id="@+id/button_gd_get_bytes_by_path"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="2dp"
+        android:text="GD get bytes by path"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_gd_create_or_update_file" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

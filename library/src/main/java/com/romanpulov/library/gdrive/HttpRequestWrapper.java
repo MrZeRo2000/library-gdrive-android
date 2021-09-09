@@ -29,6 +29,36 @@ import java.util.Map;
 public class HttpRequestWrapper {
     private static final String TAG = HttpRequestWrapper.class.getSimpleName();
 
+    public static class InputStreamVolleyRequest extends Request<byte[]> {
+        private final Response.Listener<byte[]> mListener;
+        //create a static map for directly accessing headers
+        public Map<String, String> responseHeaders;
+
+        public InputStreamVolleyRequest(int post, String mUrl, Response.Listener<byte[]> listener,
+                                        Response.ErrorListener errorListener) {
+
+            super(post, mUrl, errorListener);
+            // this request would never use cache.
+            setShouldCache(false);
+            mListener = listener;
+        }
+
+        @Override
+        protected void deliverResponse(byte[] response) {
+            mListener.onResponse(response);
+        }
+
+        @Override
+        protected Response<byte[]> parseNetworkResponse(NetworkResponse response) {
+
+            //Initialise local responseHeaders map with response headers received
+            responseHeaders = response.headers;
+
+            //Pass the response data here
+            return Response.success(response.data, HttpHeaderParser.parseCacheHeaders(response));
+        }
+    }
+
     public static HttpRequestException getErrorResponseException(VolleyError error) {
         if (error instanceof NoConnectionError) {
             return new HttpRequestException("No internet connection");
@@ -259,5 +289,36 @@ public class HttpRequestWrapper {
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         queue.add(request);
     };
+
+    public static void executeGetBytesRequest(
+            @NonNull final Context context,
+            @NonNull final String url,
+            @NonNull final String accessToken,
+            @NonNull final Response.Listener<byte[]> responseListener,
+            @NonNull final Response.ErrorListener errorListener)
+    {
+        Log.d(TAG, "Starting volley request to gd");
+
+        RequestQueue queue = Volley.newRequestQueue(context);
+
+        InputStreamVolleyRequest request = new InputStreamVolleyRequest(Request.Method.GET, url,
+                responseListener, errorListener) {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Authorization", "Bearer " + accessToken);
+                return headers;
+            }
+        };
+
+        Log.d(TAG, "Adding HTTP GET to Queue, Request: " + request.toString());
+
+        request.setRetryPolicy(new DefaultRetryPolicy(
+                3000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        queue.add(request);
+    }
+
 
 }

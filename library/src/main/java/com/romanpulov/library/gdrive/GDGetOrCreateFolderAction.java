@@ -26,7 +26,7 @@ public class GDGetOrCreateFolderAction extends GDAbstractTokenRequiresAction<Str
         try {
             url = String.format(
                     "https://www.googleapis.com/drive/v3/files?&q=%s&fields=%s&key=%s",
-                    URLEncoder.encode(String.format("mimeType = 'application/vnd.google-apps.folder' and name = '%s' and trashed = false", mFolderName), String.valueOf(StandardCharsets.UTF_8)),
+                    URLEncoder.encode(String.format("mimeType = 'application/vnd.google-apps.folder' and name = '%s' and trashed = false and 'root' in parents ", mFolderName), String.valueOf(StandardCharsets.UTF_8)),
                     URLEncoder.encode("files(id)", String.valueOf(StandardCharsets.UTF_8)),
                     GDConfig.get().getAuthConfigData(mActivity).getClientSecret()
             );

@@ -59,7 +59,6 @@ public class GDPutFilesAction extends GDAbstractFolderItemsRequiresAction<Void> 
                     String metadata = metadataObject.toString();
                     Log.d(TAG, "Metadata:" + metadata);
 
-
                     String boundary = "-------314159265358979323846";
                     String delimiter = "\r\n--" + boundary + "\r\n";
                     String closeDelimiter = "\r\n--" + boundary + "--";
@@ -83,7 +82,7 @@ public class GDPutFilesAction extends GDAbstractFolderItemsRequiresAction<Void> 
 
                     if (fileId == null) {
                         String postURL = String.format(
-                                "https://www.googleapis.com/upload/drive/v3/files?key=%s",
+                                "https://www.googleapis.com/upload/drive/v3/files?key=%s?uploadType=multipart",
                                 GDConfig.get().getAuthConfigData(mActivity).getClientSecret()
                         );
 
@@ -109,9 +108,25 @@ public class GDPutFilesAction extends GDAbstractFolderItemsRequiresAction<Void> 
                         );
                     } else {
                         String patchURL = String.format(
-                                "https://www.googleapis.com/upload/drive/v3/files/%s",
+                                "https://www.googleapis.com/upload/drive/v3/files/%s?uploadType=multipart",
                                 fileId
                         );
+
+                        JSONObject updateMetadataObject = new JSONObject();
+                        updateMetadataObject.put("name", f.getName());
+                        updateMetadataObject.put("mimeType", "application/octet-stream");
+                        String updateMetadata = updateMetadataObject.toString();
+
+                        String updateMultipartRequestBody =
+                                delimiter +
+                                        "Content-Type: application/json\r\n\r\n" +
+                                        updateMetadata +
+                                        delimiter +
+                                        "Content-Type: " + contentType + "\r\n" +
+                                        "Content-Transfer-Encoding: base64\r\n" +
+                                        "\r\n" +
+                                        base64String +
+                                        closeDelimiter;
 
                         HttpRequestWrapper.executePatchRequest(
                                 mActivity,
@@ -119,7 +134,7 @@ public class GDPutFilesAction extends GDAbstractFolderItemsRequiresAction<Void> 
                                 GDAuthData.mAccessToken.get(),
                                 "multipart/mixed; boundary=\"" + boundary + "\"",
                                 params,
-                                multipartRequestBody.getBytes(StandardCharsets.UTF_8),
+                                updateMultipartRequestBody.getBytes(StandardCharsets.UTF_8),
                                 postResponse -> {
                                     if ((fileCounter.decrementAndGet() == 0)  && (!errorFlag.get())) {
                                         Log.d(TAG, "Invoking success");

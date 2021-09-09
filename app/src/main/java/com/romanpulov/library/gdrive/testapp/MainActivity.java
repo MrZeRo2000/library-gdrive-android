@@ -1,24 +1,18 @@
 package com.romanpulov.library.gdrive.testapp;
 
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.content.IntentSender;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.google.android.gms.auth.UserRecoverableAuthException;
 import com.google.android.gms.auth.api.identity.BeginSignInRequest;
 import com.google.android.gms.auth.api.identity.BeginSignInResult;
 import com.google.android.gms.auth.api.identity.Identity;
@@ -33,9 +27,6 @@ import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.TaskCompletionSource;
-import com.google.android.gms.tasks.Tasks;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.http.javanet.NetHttpTransport;
@@ -45,7 +36,6 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.FileList;
-import com.romanpulov.library.gdrive.GDCreateOrUpdateFileAction;
 import com.romanpulov.library.gdrive.GDGetOrCreateFolderAction;
 import com.romanpulov.library.gdrive.OnGDActionListener;
 
@@ -54,15 +44,10 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.Executors;
 
-    public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity {
     private final static String TAG = MainActivity.class.getSimpleName();
 
     private static final int REQUEST_CODE_SIGN_IN = 1;
@@ -291,32 +276,21 @@ import java.util.concurrent.Executors;
             });
         });
 
-        Button gdCreateOrUpdateFile = findViewById(R.id.button_gd_create_or_update_file);
-        gdCreateOrUpdateFile.setOnClickListener( v -> {
-            String data = "3ee-ddHfffs";
-            try {
-                File file = new File(getFilesDir().getAbsolutePath() + File.separator + "testfilename");
-                try (FileOutputStream outputStream = new FileOutputStream(file.getAbsolutePath())) {
-                    outputStream.write(data.getBytes(StandardCharsets.UTF_8));
+        Button gdGetBytesByPath = findViewById(R.id.button_gd_get_bytes_by_path);
+        gdGetBytesByPath.setOnClickListener(v -> {
+            GDHelper.getInstance().getBytesByPath(MainActivity.this, "AndroidBackupFolder" + File.separator + "testfilename_0", new OnGDActionListener<byte[]>() {
+                @Override
+                public void onActionSuccess(byte[] data) {
+                    Toast.makeText(MainActivity.this, "Executed successfully", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "Got the data:" + new String(data, StandardCharsets.UTF_8));
                 }
 
-                GDHelper.getInstance();
-                new GDCreateOrUpdateFileAction(MainActivity.this, "AndroidBackupFolderTest", file, new OnGDActionListener<String>() {
-                    @Override
-                    public void onActionSuccess(String data) {
-                        Toast.makeText(MainActivity.this, "Executed successfully", Toast.LENGTH_SHORT).show();
-                        Log.d(TAG, "Executed successfully");
-                    }
-
-                    @Override
-                    public void onActionFailure(Exception exception) {
-                        Toast.makeText(MainActivity.this, "Error:" + exception.getMessage(), Toast.LENGTH_SHORT).show();
-                        Log.d(TAG, "Error:" + exception.getMessage());
-                    }
-                }).execute();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+                @Override
+                public void onActionFailure(Exception exception) {
+                    Toast.makeText(MainActivity.this, "Error:" + exception.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "Error:" + exception.getMessage());
+                }
+            });
         });
     }
 
