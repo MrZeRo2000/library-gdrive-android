@@ -28,6 +28,10 @@ public abstract class GDBaseHelper {
         GDActionExecutor.execute(new GDSignOutAction(activity, callback));
     }
 
+    public void load(Activity activity, OnGDActionListener<Void> callback) {
+        GDActionExecutor.execute(new GDLoadAccountAction(activity, callback));
+    }
+
     public void listItems(Activity activity, OnGDActionListener<JSONObject> callback) {
         GDActionExecutor.execute(new GDListItemsAction(activity, "root", callback));
     }
