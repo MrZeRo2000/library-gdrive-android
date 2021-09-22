@@ -211,6 +211,21 @@ public class MainActivity extends AppCompatActivity {
             });
         });
 
+        Button gdLoad = findViewById(R.id.button_gd_load);
+        gdLoad.setOnClickListener( v -> {
+            GDHelper.getInstance().load(this, new OnGDActionListener<Void>() {
+                @Override
+                public void onActionSuccess(Void data) {
+                    Toast.makeText(MainActivity.this, "Successfully loaded", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onActionFailure(Exception exception) {
+                    Toast.makeText(MainActivity.this, "Error loading:" + exception.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
+
         Button gdListItems = findViewById(R.id.button_gd_list_items);
         gdListItems.setOnClickListener(v -> {
             GDHelper.getInstance().listItems(this, new OnGDActionListener<JSONObject>() {

@@ -34,7 +34,7 @@ public class GDGetBytesByPathAction extends GDAbstractTokenRequiresAction<byte[]
                     "https://www.googleapis.com/drive/v3/files?&q=%s&fields=%s&key=%s",
                     URLEncoder.encode(String.format("mimeType = 'application/vnd.google-apps.folder' and name = '%s' and trashed = false and 'root' in parents ", folderName), String.valueOf(StandardCharsets.UTF_8)),
                     URLEncoder.encode("files(id)", String.valueOf(StandardCharsets.UTF_8)),
-                    GDConfig.get().getAuthConfigData(mActivity).getClientSecret()
+                    GDConfig.get().getAuthConfigData(mContext).getClientSecret()
             );
 
         } catch (UnsupportedEncodingException e) {
@@ -43,7 +43,7 @@ public class GDGetBytesByPathAction extends GDAbstractTokenRequiresAction<byte[]
         }
 
         HttpRequestWrapper.executeGetJSONTokenRequest(
-                mActivity,
+                mContext,
                 url,
                 GDAuthData.mAccessToken.get(),
                 response -> {
@@ -63,11 +63,11 @@ public class GDGetBytesByPathAction extends GDAbstractTokenRequiresAction<byte[]
                                         "https://www.googleapis.com/drive/v3/files?&q=%s&fields=%s&key=%s",
                                         URLEncoder.encode(String.format("mimeType != 'application/vnd.google-apps.folder' and name = '%s' and trashed = false and '%s' in parents ", fileName, folderId), String.valueOf(StandardCharsets.UTF_8)),
                                         URLEncoder.encode("files(id, name)", String.valueOf(StandardCharsets.UTF_8)),
-                                        GDConfig.get().getAuthConfigData(mActivity).getClientSecret()
+                                        GDConfig.get().getAuthConfigData(mContext).getClientSecret()
                                 );
 
                                 HttpRequestWrapper.executeGetJSONTokenRequest(
-                                        mActivity,
+                                        mContext,
                                         fileURL,
                                         GDAuthData.mAccessToken.get(),
                                         fileResponse -> {
@@ -81,7 +81,7 @@ public class GDGetBytesByPathAction extends GDAbstractTokenRequiresAction<byte[]
 
                                                     String fileGetURL = String.format("https://www.googleapis.com/drive/v3/files/%s?alt=media", fileId);
                                                     HttpRequestWrapper.executeGetBytesRequest(
-                                                            mActivity,
+                                                            mContext,
                                                             fileGetURL,
                                                             GDAuthData.mAccessToken.get(),
                                                             this::notifySuccess,
@@ -115,8 +115,8 @@ public class GDGetBytesByPathAction extends GDAbstractTokenRequiresAction<byte[]
 
     }
 
-    public GDGetBytesByPathAction(Activity activity, String path, OnGDActionListener<byte[]> gdActionListener) {
-        super(activity, gdActionListener);
+    public GDGetBytesByPathAction(Context context, String path, OnGDActionListener<byte[]> gdActionListener) {
+        super(context, gdActionListener);
         this.mPath = path;
     }
 }

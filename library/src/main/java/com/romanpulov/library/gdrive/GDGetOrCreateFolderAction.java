@@ -1,6 +1,5 @@
 package com.romanpulov.library.gdrive;
 
-import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 
@@ -29,7 +28,7 @@ public class GDGetOrCreateFolderAction extends GDAbstractTokenRequiresAction<Str
                     "https://www.googleapis.com/drive/v3/files?&q=%s&fields=%s&key=%s",
                     URLEncoder.encode(String.format("mimeType = 'application/vnd.google-apps.folder' and name = '%s' and trashed = false and 'root' in parents ", mFolderName), String.valueOf(StandardCharsets.UTF_8)),
                     URLEncoder.encode("files(id)", String.valueOf(StandardCharsets.UTF_8)),
-                    GDConfig.get().getAuthConfigData(mActivity).getClientSecret()
+                    GDConfig.get().getAuthConfigData(mContext).getClientSecret()
             );
 
         } catch (UnsupportedEncodingException e) {
@@ -39,7 +38,7 @@ public class GDGetOrCreateFolderAction extends GDAbstractTokenRequiresAction<Str
 
         if (url != null) {
             HttpRequestWrapper.executeGetJSONTokenRequest(
-                    mActivity,
+                    mContext,
                     url,
                     GDAuthData.mAccessToken.get(),
                     response -> {
@@ -58,7 +57,7 @@ public class GDGetOrCreateFolderAction extends GDAbstractTokenRequiresAction<Str
 
                                 String postURL = String.format(
                                         "https://www.googleapis.com/drive/v3/files?key=%s",
-                                        GDConfig.get().getAuthConfigData(mActivity).getClientSecret()
+                                        GDConfig.get().getAuthConfigData(mContext).getClientSecret()
                                 );
 
                                 String postData =
@@ -67,7 +66,7 @@ public class GDGetOrCreateFolderAction extends GDAbstractTokenRequiresAction<Str
                                 byte[] postDataBytes = postData.getBytes(StandardCharsets.UTF_8);
 
                                 HttpRequestWrapper.executePostRequest(
-                                        mActivity,
+                                        mContext,
                                         postURL,
                                         GDAuthData.mAccessToken.get(),
                                         "application/json",
@@ -96,8 +95,8 @@ public class GDGetOrCreateFolderAction extends GDAbstractTokenRequiresAction<Str
 
     }
 
-    public GDGetOrCreateFolderAction(Activity activity, String folderName, OnGDActionListener<String> gdActionListener) {
-        super(activity, gdActionListener);
+    public GDGetOrCreateFolderAction(Context context, String folderName, OnGDActionListener<String> gdActionListener) {
+        super(context, gdActionListener);
         this.mFolderName = folderName;
     }
 }

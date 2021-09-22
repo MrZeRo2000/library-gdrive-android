@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
  * Token requires abstract action
  * @param <D> data type to return
  */
-public abstract class GDAbstractTokenRequiresAction<D> extends GDAbstractAuthCodeRequiresAction<D>{
+public abstract class GDAbstractTokenRequiresAction<D> extends GDAbstractAuthCodeAvailableAction<D>{
     private static final String TAG = GDAbstractTokenRequiresAction.class.getSimpleName();
 
     protected abstract void executeWithToken();
@@ -39,14 +39,14 @@ public abstract class GDAbstractTokenRequiresAction<D> extends GDAbstractAuthCod
             String postString = String.format(
                     "code=%s&client_id=%s&client_secret=%s&redirect_uri=&grant_type=authorization_code",
                     GDAuthData.mAuthCode.get(),
-                    GDConfig.get().getAuthConfigData(mActivity).getWebClientId(),
-                    GDConfig.get().getAuthConfigData(mActivity).getClientSecret()
+                    GDConfig.get().getAuthConfigData(mContext).getWebClientId(),
+                    GDConfig.get().getAuthConfigData(mContext).getClientSecret()
             );
             Log.d(TAG, "Post string:" + postString);
             byte[] postData = postString.getBytes(StandardCharsets.UTF_8);
 
             HttpRequestWrapper.executePostRequest(
-                    mActivity,
+                    mContext,
                     "https://oauth2.googleapis.com/token",
                     "application/x-www-form-urlencoded",
                     postData,
@@ -69,7 +69,7 @@ public abstract class GDAbstractTokenRequiresAction<D> extends GDAbstractAuthCod
         }
     }
 
-    public GDAbstractTokenRequiresAction(Activity activity, OnGDActionListener<D> gdActionListener) {
-        super(activity, gdActionListener);
+    public GDAbstractTokenRequiresAction(Context context, OnGDActionListener<D> gdActionListener) {
+        super(context, gdActionListener);
     }
 }

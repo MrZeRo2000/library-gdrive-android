@@ -1,6 +1,5 @@
 package com.romanpulov.library.gdrive;
 
-import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 
@@ -25,11 +24,11 @@ public class GDListItemsAction extends GDAbstractTokenRequiresAction<JSONObject>
                     URLEncoder.encode("folder,name", String.valueOf(StandardCharsets.UTF_8)),
                     URLEncoder.encode(String.format("parents in '%s' and trashed = false", mParent), String.valueOf(StandardCharsets.UTF_8)),
                     URLEncoder.encode("files(id,mimeType,name)", String.valueOf(StandardCharsets.UTF_8)),
-                    GDConfig.get().getAuthConfigData(mActivity).getClientSecret()
+                    GDConfig.get().getAuthConfigData(mContext).getClientSecret()
             );
 
             HttpRequestWrapper.executeGetJSONTokenRequest(
-                    mActivity,
+                    mContext,
                     url,
                     GDAuthData.mAccessToken.get(),
                     this::notifySuccess,
@@ -41,8 +40,8 @@ public class GDListItemsAction extends GDAbstractTokenRequiresAction<JSONObject>
 
     }
 
-    public GDListItemsAction(Activity activity, String parent, OnGDActionListener<JSONObject> gdActionListener) {
-        super(activity, gdActionListener);
+    public GDListItemsAction(Context context, String parent, OnGDActionListener<JSONObject> gdActionListener) {
+        super(context, gdActionListener);
         this.mParent = parent;
     }
 }

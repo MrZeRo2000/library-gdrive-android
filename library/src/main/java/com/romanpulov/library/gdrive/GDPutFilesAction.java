@@ -1,6 +1,5 @@
 package com.romanpulov.library.gdrive;
 
-import android.app.Activity;
 import android.content.Context;
 import android.util.Base64;
 import android.util.Log;
@@ -63,7 +62,7 @@ public class GDPutFilesAction extends GDAbstractFolderItemsRequiresAction<Void> 
 
                         String postURL = String.format(
                                 "https://www.googleapis.com/upload/drive/v3/files?key=%s?uploadType=multipart",
-                                GDConfig.get().getAuthConfigData(mActivity).getClientSecret()
+                                GDConfig.get().getAuthConfigData(mContext).getClientSecret()
                         );
 
                         JSONObject metadataObject = new JSONObject();
@@ -89,7 +88,7 @@ public class GDPutFilesAction extends GDAbstractFolderItemsRequiresAction<Void> 
                                         closeDelimiter;
 
                         HttpRequestWrapper.executePostRequest(
-                                mActivity,
+                                mContext,
                                 postURL,
                                 GDAuthData.mAccessToken.get(),
                                 "multipart/mixed; boundary=\"" + boundary + "\"",
@@ -133,7 +132,7 @@ public class GDPutFilesAction extends GDAbstractFolderItemsRequiresAction<Void> 
                                         closeDelimiter;
 
                         HttpRequestWrapper.executePatchRequest(
-                                mActivity,
+                                mContext,
                                 patchURL,
                                 GDAuthData.mAccessToken.get(),
                                 "multipart/mixed; boundary=\"" + boundary + "\"",
@@ -165,8 +164,8 @@ public class GDPutFilesAction extends GDAbstractFolderItemsRequiresAction<Void> 
 
     }
 
-    public GDPutFilesAction(Activity activity, String path, File[] files, OnGDActionListener<Void> gdActionListener) {
-        super(activity, path, gdActionListener);
+    public GDPutFilesAction(Context context, String path, File[] files, OnGDActionListener<Void> gdActionListener) {
+        super(context, path, gdActionListener);
         this.mFiles = files;
     }
 }

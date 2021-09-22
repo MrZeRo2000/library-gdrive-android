@@ -2,9 +2,9 @@ package com.romanpulov.library.gdrive;
 
 import android.app.Activity;
 
-public class GDLoadAccountAction extends GDAbstractTokenRequiresAction<Void>{
+public class GDLoadAccountAction extends GDAbstractAuthCodeRequiresAction<Void>{
     @Override
-    protected void executeWithToken() {
+    protected void executeWithAuthCode() {
         notifySuccess(null);
     }
 

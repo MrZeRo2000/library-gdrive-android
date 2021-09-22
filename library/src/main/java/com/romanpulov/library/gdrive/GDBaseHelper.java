@@ -32,19 +32,19 @@ public abstract class GDBaseHelper {
         GDActionExecutor.execute(new GDLoadAccountAction(activity, callback));
     }
 
-    public void listItems(Activity activity, OnGDActionListener<JSONObject> callback) {
-        GDActionExecutor.execute(new GDListItemsAction(activity, "root", callback));
+    public void listItems(Context context, OnGDActionListener<JSONObject> callback) {
+        GDActionExecutor.execute(new GDListItemsAction(context, "root", callback));
     }
 
-    public void putFiles(Activity activity, String path, File[] files, OnGDActionListener<Void> callback) {
-        GDActionExecutor.execute(new GDPutFilesAction(activity, GDPathUtils.pathToFolder(path), files, callback));
+    public void putFiles(Context context, String path, File[] files, OnGDActionListener<Void> callback) {
+        GDActionExecutor.execute(new GDPutFilesAction(context, GDPathUtils.pathToFolder(path), files, callback));
     }
 
-    public void putFiles(Activity activity, String path, File[] files) throws GDActionException {
-        GDActionExecutor.executeSync(new GDPutFilesAction(activity, GDPathUtils.pathToFolder(path), files, null));
+    public void putFiles(Context context, String path, File[] files) throws GDActionException {
+        GDActionExecutor.executeSync(new GDPutFilesAction(context, GDPathUtils.pathToFolder(path), files, null));
     }
 
-    public void getBytesByPath(Activity activity, String path, OnGDActionListener<byte[]> callback) {
-        GDActionExecutor.execute(new GDGetBytesByPathAction(activity, path, callback));
+    public void getBytesByPath(Context context, String path, OnGDActionListener<byte[]> callback) {
+        GDActionExecutor.execute(new GDGetBytesByPathAction(context, path, callback));
     }
 }

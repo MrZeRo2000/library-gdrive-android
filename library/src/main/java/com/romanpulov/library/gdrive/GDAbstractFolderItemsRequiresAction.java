@@ -32,7 +32,7 @@ public abstract class GDAbstractFolderItemsRequiresAction<T> extends GDAbstractF
 
     @Override
     protected void executeWithFolderId(String folderId) {
-        new GDListItemsAction(mActivity, folderId, new OnGDActionListener<JSONObject>() {
+        new GDListItemsAction(mContext, folderId, new OnGDActionListener<JSONObject>() {
             @Override
             public void onActionSuccess(JSONObject folderItems) {
                 Log.d(TAG, "Got list items data:" + folderItems.toString() + ", folderId:" + folderId);
@@ -50,7 +50,7 @@ public abstract class GDAbstractFolderItemsRequiresAction<T> extends GDAbstractF
         }).execute();
     }
 
-    public GDAbstractFolderItemsRequiresAction(Activity activity, String path, OnGDActionListener<T> gdActionListener) {
-        super(activity, path, gdActionListener);
+    public GDAbstractFolderItemsRequiresAction(Context context, String path, OnGDActionListener<T> gdActionListener) {
+        super(context, path, gdActionListener);
     }
 }

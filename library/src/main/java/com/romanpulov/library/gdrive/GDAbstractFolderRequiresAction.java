@@ -11,7 +11,7 @@ public abstract class GDAbstractFolderRequiresAction<T> extends GDAbstractTokenR
 
     @Override
     protected void executeWithToken() {
-        new GDGetOrCreateFolderAction(mActivity, mPath, new OnGDActionListener<String>() {
+        new GDGetOrCreateFolderAction(mContext, mPath, new OnGDActionListener<String>() {
             @Override
             public void onActionSuccess(String folderId) {
                 executeWithFolderId(folderId);
@@ -24,8 +24,8 @@ public abstract class GDAbstractFolderRequiresAction<T> extends GDAbstractTokenR
         }).execute();
     }
 
-    public GDAbstractFolderRequiresAction(Activity activity, String path, OnGDActionListener<T> gdActionListener) {
-        super(activity, gdActionListener);
+    public GDAbstractFolderRequiresAction(Context context, String path, OnGDActionListener<T> gdActionListener) {
+        super(context, gdActionListener);
         this.mPath = path;
     }
 }
