@@ -12,7 +12,7 @@ ext {
     artifact = 'library'
 
     libraryDescription = 'Roman Pulov GDrive library for Android'
-    libraryVersion = '0.0.6'
+    libraryVersion = '0.0.7'
 }
 
 android {
@@ -22,7 +22,7 @@ android {
         minSdk 21
         targetSdk 30
         versionCode 1
-        versionName "1.0"
+        versionName libraryVersion
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
