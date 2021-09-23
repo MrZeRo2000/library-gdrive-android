@@ -24,9 +24,9 @@ public class GDPutBytesByPathAction extends GDAbstractFolderItemsRequiresAction<
     private final String mFileName;
     private final byte[] mData;
 
-    public GDPutBytesByPathAction(Context context, String path, String fileName, byte[] data, OnGDActionListener<Void> gdActionListener) {
-        super(context, path, gdActionListener);
-        this.mFileName = fileName;
+    public GDPutBytesByPathAction(Context context, String path, byte[] data, OnGDActionListener<Void> gdActionListener) {
+        super(context, GDPathUtils.pathToFolderNameAndFileName(path)[0], gdActionListener);
+        this.mFileName = GDPathUtils.pathToFolderNameAndFileName(path)[1];
         this.mData = data;
     }
 

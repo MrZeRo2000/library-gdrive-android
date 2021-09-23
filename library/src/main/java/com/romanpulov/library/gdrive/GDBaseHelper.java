@@ -44,11 +44,15 @@ public abstract class GDBaseHelper {
         GDActionExecutor.executeSync(new GDPutFilesAction(context, GDPathUtils.pathToFolder(path), files, null));
     }
 
-    public void putBytesByPath(Context context, String path, String fileName, byte[] data) throws GDActionException {
-        GDActionExecutor.executeSync(new GDPutBytesByPathAction(context, GDPathUtils.pathToFolder(path), fileName, data, null));
+    public void putBytesByPath(Context context, String path, byte[] data) throws GDActionException {
+        GDActionExecutor.executeSync(new GDPutBytesByPathAction(context, path, data, null));
     }
 
     public void getBytesByPath(Context context, String path, OnGDActionListener<byte[]> callback) {
         GDActionExecutor.execute(new GDGetBytesByPathAction(context, path, callback));
+    }
+
+    public byte[] getBytesByPath(Context context, String path)  throws GDActionException {
+        return GDActionExecutor.executeSync(new GDGetBytesByPathAction(context, path, null));
     }
 }
