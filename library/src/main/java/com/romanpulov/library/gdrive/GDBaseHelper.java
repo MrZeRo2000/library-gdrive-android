@@ -28,6 +28,12 @@ public abstract class GDBaseHelper {
         GDActionExecutor.execute(new GDSignOutAction(activity, callback));
     }
 
+    public void silentLogin(Context context) throws GDActionException {
+        setServerAuthCode(
+                GDActionExecutor.executeSync(new GDSilentAuthenticationAction(context, null))
+        );
+    }
+
     public void load(Activity activity, OnGDActionListener<Void> callback) {
         GDActionExecutor.execute(new GDLoadAccountAction(activity, callback));
     }

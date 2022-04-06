@@ -109,13 +109,40 @@
         app:layout_constraintTop_toBottomOf="@+id/button_gd_create_replace_folder" />
 
     <Button
+        android:id="@+id/button_gd_put_files_last_auth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="2dp"
+        android:text="GD put files last authenticated"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_gd_put_files" />
+
+    <Button
         android:id="@+id/button_gd_get_bytes_by_path"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="2dp"
         android:text="GD get bytes by path"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_gd_put_files" />
+        app:layout_constraintTop_toBottomOf="@+id/button_gd_put_files_last_auth" />
+
+    <Button
+        android:id="@+id/button_start_service"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="2dp"
+        android:text="Start service"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_gd_get_bytes_by_path" />
+
+    <Button
+        android:id="@+id/button_start_worker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="2dp"
+        android:text="Start worker"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_start_service" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

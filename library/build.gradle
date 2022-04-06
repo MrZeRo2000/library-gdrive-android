@@ -12,7 +12,7 @@ ext {
     artifact = 'library'
 
     libraryDescription = 'Roman Pulov GDrive library for Android'
-    libraryVersion = '0.0.8'
+    libraryVersion = '0.0.9'
 }
 
 android {

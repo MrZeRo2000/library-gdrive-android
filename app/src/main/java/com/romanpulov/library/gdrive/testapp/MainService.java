@@ -20,6 +20,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public class MainService extends IntentService {
+    private final static String TAG = MainService.class.getSimpleName();
 
     public MainService() {
         super("MainService");
@@ -27,40 +28,34 @@ public class MainService extends IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        Toast.makeText(this, "service starting", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "service starting", Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "starting onHandleIntent");
 
-        //generate files
-        String[] fileStrings = new String[] {"1-dfwkerkwerw", "2-6,vdfgdfg", "3-gkkkrk444", "4-,fkfkfkdrtrrewwerwer"};
-        File[] files = new File[fileStrings.length];
-
-        for (int i = 0; i < fileStrings.length; i++) {
-            try {
-                File file = new File(getFilesDir().getAbsolutePath() + File.separator + "testfilename_" + i);
-                try (FileOutputStream outputStream = new FileOutputStream(file.getAbsolutePath())) {
-                    outputStream.write(fileStrings[i].getBytes(StandardCharsets.UTF_8));
-                }
-                files[i] = file;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        File[] files = GDHelper.generateFiles(getApplicationContext());
 
         try {
-            GDHelper.getInstance().putFiles((Activity)this.getApplicationContext(), "AndroidBackupFolder", files);
-            Toast.makeText(this, "Executed successfully", Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "logging in silently");
+            GDHelper.getInstance().silentLogin(getApplicationContext());
+            Log.d(TAG, "silent login success");
+            Log.d(TAG, "putting files");
+            GDHelper.getInstance().putFiles(this.getApplicationContext(), "AndroidBackupFolder", files);
+            Log.d(TAG, "put files success");
+            //Toast.makeText(this, "Executed successfully", Toast.LENGTH_SHORT).show();
         } catch (GDActionException e) {
-            Toast.makeText(this, "Error:" + e.getMessage(), Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "Error:" + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Error in service:" + e.getMessage());
         }
     }
 
     @Override
     public void onStart(@Nullable Intent intent, int startId) {
         super.onStart(intent, startId);
+        Log.d(TAG, "service onStart");
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Toast.makeText(this, "service destroyed", Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "service destroyed");
     }
 }

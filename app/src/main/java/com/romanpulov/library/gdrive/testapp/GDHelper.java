@@ -10,6 +10,11 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.romanpulov.library.gdrive.GDBaseHelper;
 import com.romanpulov.library.gdrive.GDConfig;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
 public class GDHelper extends GDBaseHelper {
     private static final int REQUEST_CODE_SIGN_IN = 1543;
 
@@ -42,5 +47,24 @@ public class GDHelper extends GDBaseHelper {
                         Toast.makeText(context, "Error signing in:" + e.getMessage(), Toast.LENGTH_SHORT).show();
                     });
         }
+    }
+
+    public static File[] generateFiles(Context context) {
+        String[] fileStrings = new String[] {"1-dfwkerkwerw", "2-6,vdfgdfg", "3-gkkkrk444", "4-,fkfkfkdrtrrewwerwer"};
+        File[] files = new File[fileStrings.length];
+
+        for (int i = 0; i < fileStrings.length; i++) {
+            try {
+                File file = new File(context.getFilesDir().getAbsolutePath() + File.separator + "testfilename_" + i);
+                try (FileOutputStream outputStream = new FileOutputStream(file.getAbsolutePath())) {
+                    outputStream.write(fileStrings[i].getBytes(StandardCharsets.UTF_8));
+                }
+                files[i] = file;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return files;
     }
 }

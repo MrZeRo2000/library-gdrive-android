@@ -16,8 +16,7 @@
         android:theme="@style/Theme.GDriveTestApp">
         <service
             android:name=".MainService"
-            android:exported="false"></service>
-
+            android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true">

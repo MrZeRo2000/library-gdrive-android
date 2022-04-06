@@ -3,6 +3,11 @@ package com.romanpulov.library.gdrive.testapp;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.Operation;
+import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
 
 import android.content.Intent;
 import android.content.IntentSender;
@@ -27,6 +32,7 @@ import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import com.google.android.gms.tasks.Task;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.http.javanet.NetHttpTransport;
@@ -37,7 +43,10 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.FileList;
 import com.romanpulov.library.gdrive.GDActionException;
+import com.romanpulov.library.gdrive.GDActionExecutor;
+import com.romanpulov.library.gdrive.GDConfig;
 import com.romanpulov.library.gdrive.GDGetOrCreateFolderAction;
+import com.romanpulov.library.gdrive.GDSilentAuthenticationAction;
 import com.romanpulov.library.gdrive.OnGDActionListener;
 
 import org.json.JSONObject;
@@ -178,6 +187,22 @@ public class MainActivity extends AppCompatActivity {
         });
 
         setupGDLibraryButtons();
+
+        Button startServiceButton = findViewById(R.id.button_start_service);
+        startServiceButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, MainService.class);
+            startService(intent);
+        });
+
+        Button startWorkerButton = findViewById(R.id.button_start_worker);
+        startWorkerButton.setOnClickListener(v -> {
+            OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(MainWorker.class)
+                    .addTag("tag")
+                    .build();
+            Operation op = WorkManager.getInstance(getApplicationContext())
+                    .enqueueUniqueWork("work", ExistingWorkPolicy.KEEP, workRequest);
+
+        });
     }
 
     private void setupGDLibraryButtons() {
@@ -322,6 +347,82 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
+
+        });
+
+        Button gdPutFilesLastAuthenticated = findViewById(R.id.button_gd_put_files_last_auth);
+        gdPutFilesLastAuthenticated.setOnClickListener(v -> {
+
+            Executor executor = Executors.newSingleThreadExecutor();
+            executor.execute(() -> {
+                try {
+                    Log.d(TAG, "Before silent log in");
+                    GDHelper.getInstance().silentLogin(getApplicationContext());;
+                    Log.d(TAG, "Silently logged in, auth code:");
+                } catch (GDActionException e) {
+                    Log.e(TAG, "Error silent authentication:" + e.getMessage());
+                }
+            });
+            /*
+            GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(getApplicationContext());
+
+            if (account != null) {
+
+                final GoogleSignInOptions signInOptions =
+                        new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                                .requestEmail()
+                                .requestScopes(new Scope(DriveScopes.DRIVE))
+                                .requestServerAuthCode(getString(R.string.default_web_client_id))
+                                .build();
+
+                final GoogleSignInClient client = GoogleSignIn.getClient(getApplicationContext(), signInOptions);
+
+                Task<GoogleSignInAccount> task = client.silentSignIn()
+                        .addOnSuccessListener(a -> {
+                           Log.d(TAG, "silentSignIn success");
+
+                           GDHelper.getInstance().setServerAuthCode(a.getServerAuthCode());
+
+                            //generate files
+                            String[] fileStrings = new String[] {"1-dfwkerkwerw", "2-6,vdfgdfg", "3-gkkkrk444", "4-,fkfkfkdrtrrewwerwer"};
+                            File[] files = new File[fileStrings.length];
+
+                            for (int i = 0; i < fileStrings.length; i++) {
+                                try {
+                                    File file = new File(getFilesDir().getAbsolutePath() + File.separator + "testfilename_" + i);
+                                    try (FileOutputStream outputStream = new FileOutputStream(file.getAbsolutePath())) {
+                                        outputStream.write(fileStrings[i].getBytes(StandardCharsets.UTF_8));
+                                    }
+                                    files[i] = file;
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+
+                            GDHelper.getInstance().putFiles(MainActivity.this, "AndroidBackupFolder", files, new OnGDActionListener<Void>() {
+                                @Override
+                                public void onActionSuccess(Void data) {
+                                    Toast.makeText(MainActivity.this, "Executed successfully", Toast.LENGTH_SHORT).show();
+                                    Log.d(TAG, "Executed successfully");
+                                }
+
+                                @Override
+                                public void onActionFailure(Exception exception) {
+                                    Toast.makeText(MainActivity.this, "Error:" + exception.getMessage(), Toast.LENGTH_SHORT).show();
+                                    Log.d(TAG, "Error:" + exception.getMessage());
+                                }
+                            });
+
+                        })
+                        .addOnFailureListener(e ->  {
+                            Log.d(TAG, "silentSignIn failure:" + e.getMessage());
+                        });
+
+            } else {
+                Log.d(TAG, "Error: could not get last signed in account");
+            }
+
+             */
 
         });
 
