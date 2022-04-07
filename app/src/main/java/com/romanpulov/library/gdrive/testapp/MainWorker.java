@@ -24,6 +24,8 @@ public class MainWorker extends Worker {
 
         File[] files = GDHelper.generateFiles(getApplicationContext());
 
+        Log.d(TAG, "Got data:" + getInputData().getString("ClassName"));
+
         try {
             Log.d(TAG, "logging in silently");
             GDHelper.getInstance().silentLogin(getApplicationContext());

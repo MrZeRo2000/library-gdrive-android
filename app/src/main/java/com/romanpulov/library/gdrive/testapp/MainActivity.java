@@ -3,6 +3,7 @@ package com.romanpulov.library.gdrive.testapp;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.Operation;
@@ -195,9 +196,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button startWorkerButton = findViewById(R.id.button_start_worker);
+        Data inputData = (new Data.Builder()).putString("ClassName", this.getClass().getSimpleName()).build();
         startWorkerButton.setOnClickListener(v -> {
             OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(MainWorker.class)
                     .addTag("tag")
+                    .setInputData(inputData)
                     .build();
             Operation op = WorkManager.getInstance(getApplicationContext())
                     .enqueueUniqueWork("work", ExistingWorkPolicy.KEEP, workRequest);
