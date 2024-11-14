@@ -1,5 +1,6 @@
 package com.romanpulov.library.gdrive.testapp;
 
+import android.app.PendingIntent;
 import android.os.CancellationSignal;
 import androidx.credentials.*;
 import androidx.annotation.NonNull;
@@ -23,11 +24,7 @@ import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.google.android.gms.auth.api.identity.BeginSignInRequest;
-import com.google.android.gms.auth.api.identity.BeginSignInResult;
-import com.google.android.gms.auth.api.identity.Identity;
-import com.google.android.gms.auth.api.identity.SignInClient;
-import com.google.android.gms.auth.api.identity.SignInCredential;
+import com.google.android.gms.auth.api.identity.*;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -62,7 +59,9 @@ import org.json.JSONObject;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -73,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_SIGN_IN = 1;
     private static final int REQUEST_CODE_RECOVER = 10;
     private static final int REQ_ONE_TAP = 2;
+    private static final int REQUEST_AUTHORIZE = 20;
 
     private static final String APPLICATION_NAME = "library-gdrive-testapp";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
@@ -510,6 +510,30 @@ public class MainActivity extends AppCompatActivity {
                                 Toast.makeText(MainActivity.this, "Got the credential", Toast.LENGTH_SHORT).show();
                             });
 
+
+                            List<Scope> requestedScopes =  Arrays.asList(new Scope(DriveScopes.DRIVE_APPDATA));
+                            AuthorizationRequest authorizationRequest = AuthorizationRequest.builder().setRequestedScopes(requestedScopes).build();
+                            Identity.getAuthorizationClient(MainActivity.this)
+                                    .authorize(authorizationRequest)
+                                    .addOnSuccessListener(
+                                            authorizationResult -> {
+                                                if (authorizationResult.hasResolution()) {
+                                                    // Access needs to be granted by the user
+                                                    PendingIntent pendingIntent = authorizationResult.getPendingIntent();
+                                                    try {
+                                                        startIntentSenderForResult(pendingIntent.getIntentSender(),
+                                                                MainActivity.REQUEST_AUTHORIZE, null, 0, 0, 0, null);
+                                                    } catch (IntentSender.SendIntentException e) {
+                                                        Log.e(TAG, "Couldn't start Authorization UI: " + e.getLocalizedMessage());
+                                                    }
+                                                } else {
+                                                    // Access already granted, continue with user action
+                                                    Log.d(TAG, "Already authorized");
+                                                    //saveToDriveAppFolder(authorizationResult);
+                                                }
+                                            })
+                                    .addOnFailureListener(e -> Log.e(TAG, "Failed to authorize", e));
+
                         }
 
                         @Override
@@ -550,6 +574,18 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == MainActivity.REQUEST_AUTHORIZE) {
+            AuthorizationResult authorizationResult = null;
+            try {
+                authorizationResult = Identity.getAuthorizationClient(this).getAuthorizationResultFromIntent(data);
+            } catch (ApiException e) {
+                throw new RuntimeException(e);
+            }
+            Log.d(TAG, "onActivityResult: got authorizationResult:" + authorizationResult);
+            //saveToDriveAppFolder(authorizationResult);
+        }
+
         GDHelper.handleActivityResult(this, requestCode, resultCode, data);
 
         switch (requestCode) {
