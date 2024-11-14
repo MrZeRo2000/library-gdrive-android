@@ -1,14 +1,18 @@
 package com.romanpulov.library.gdrive.testapp;
 
+import android.os.CancellationSignal;
+import androidx.credentials.*;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.credentials.exceptions.ClearCredentialException;
+import androidx.credentials.exceptions.GetCredentialException;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.Operation;
 import androidx.work.WorkManager;
-import androidx.work.WorkRequest;
+
 
 import android.content.Intent;
 import android.content.IntentSender;
@@ -34,6 +38,8 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import com.google.android.gms.tasks.Task;
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.http.javanet.NetHttpTransport;
@@ -50,15 +56,16 @@ import com.romanpulov.library.gdrive.GDGetOrCreateFolderAction;
 import com.romanpulov.library.gdrive.GDSilentAuthenticationAction;
 import com.romanpulov.library.gdrive.OnGDActionListener;
 
+import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public class MainActivity extends AppCompatActivity {
     private final static String TAG = MainActivity.class.getSimpleName();
@@ -74,6 +81,25 @@ public class MainActivity extends AppCompatActivity {
     private BeginSignInRequest signInRequest;
 
     private RESTDriveService rs;
+
+    private String getWebClientId() {
+        String webClientId = "";
+        try(InputStream inputStream = getResources().openRawResource(R.raw.gd_config)) {
+            String text = new BufferedReader(
+                    new InputStreamReader(inputStream, StandardCharsets.UTF_8))
+                    .lines()
+                    .collect(Collectors.joining("\n"));
+            try {
+                JSONObject jo = new JSONObject(text);
+                webClientId = jo.getString("web_client_id");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return webClientId;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -444,6 +470,80 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "Error:" + exception.getMessage());
                 }
             });
+        });
+
+        Button crLogin = findViewById(R.id.button_cr_login);
+        crLogin.setOnClickListener(v -> {
+           Log.d(TAG, "Cr login");
+
+           String webClientId = getWebClientId();
+           Log.d(TAG, "web_client_id = " + webClientId);
+            GetGoogleIdOption googleIdOption = (new GetGoogleIdOption.Builder())
+                   .setFilterByAuthorizedAccounts(true)
+                   .setServerClientId(webClientId)
+                   .setAutoSelectEnabled(true)
+                   .setNonce("<nonce string to use when generating a Google ID token>")
+                   .build();
+
+            GetSignInWithGoogleOption signInWithGoogleOption = (new GetSignInWithGoogleOption.Builder(webClientId))
+                    .setNonce("<nonce string to use when generating a Google ID token>")
+                    .build();
+
+            GetCredentialRequest getCredRequest = new GetCredentialRequest.Builder()
+                    .addCredentialOption(googleIdOption)
+                    .build();
+
+            CredentialManager credentialManager = CredentialManager.create(getApplicationContext());
+
+            credentialManager.getCredentialAsync(
+                    // Use activity based context to avoid undefined
+                    // system UI launching behavior
+                    this,
+                    getCredRequest,
+                    new CancellationSignal(),
+                    Executors.newSingleThreadExecutor(),
+                    new CredentialManagerCallback<GetCredentialResponse, GetCredentialException>() {
+                        @Override
+                        public void onResult(GetCredentialResponse result) {
+                            Log.d(TAG, "onResult: Got the credential:" + result);
+                            MainActivity.this.runOnUiThread(() -> {
+                                Toast.makeText(MainActivity.this, "Got the credential", Toast.LENGTH_SHORT).show();
+                            });
+
+                        }
+
+                        @Override
+                        public void onError(GetCredentialException e) {
+                            Log.d(TAG, "onError: " + e.getMessage());
+                            //handleFailure(e);
+                        }
+                    });
+        });
+
+        Button crLogout = findViewById(R.id.button_cr_logout);
+        crLogout.setOnClickListener(v -> {
+            ClearCredentialStateRequest clearCredentialStateRequest = new ClearCredentialStateRequest();
+            CredentialManager credentialManager = CredentialManager.create(getApplicationContext());
+
+            credentialManager.clearCredentialStateAsync(
+                    clearCredentialStateRequest,
+                    new CancellationSignal(),
+                    Executors.newSingleThreadExecutor(),
+                    new CredentialManagerCallback<Void, ClearCredentialException>() {
+                        @Override
+                        public void onError(@NotNull ClearCredentialException e) {
+                            Log.d(TAG, "onError: " + e.getMessage());
+                        }
+
+                        @Override
+                        public void onResult(Void unused) {
+                            Log.d(TAG, "onResult: Got the clear credential state");
+                            MainActivity.this.runOnUiThread(() -> {
+                                Toast.makeText(MainActivity.this, "Logged out", Toast.LENGTH_SHORT).show();
+                            });
+                        }
+                    }
+            );
         });
     }
 
