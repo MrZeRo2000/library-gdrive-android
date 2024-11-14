@@ -46,12 +46,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.FileList;
-import com.romanpulov.library.gdrive.GDActionException;
-import com.romanpulov.library.gdrive.GDActionExecutor;
-import com.romanpulov.library.gdrive.GDConfig;
-import com.romanpulov.library.gdrive.GDGetOrCreateFolderAction;
-import com.romanpulov.library.gdrive.GDSilentAuthenticationAction;
-import com.romanpulov.library.gdrive.OnGDActionListener;
+import com.romanpulov.library.gdrive.*;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
@@ -510,9 +505,10 @@ public class MainActivity extends AppCompatActivity {
                                 Toast.makeText(MainActivity.this, "Got the credential", Toast.LENGTH_SHORT).show();
                             });
 
-
                             List<Scope> requestedScopes =  Arrays.asList(new Scope(DriveScopes.DRIVE_APPDATA));
-                            AuthorizationRequest authorizationRequest = AuthorizationRequest.builder().setRequestedScopes(requestedScopes).build();
+                            AuthorizationRequest authorizationRequest = AuthorizationRequest.builder()
+                                    .setRequestedScopes(requestedScopes)
+                                    .build();
                             Identity.getAuthorizationClient(MainActivity.this)
                                     .authorize(authorizationRequest)
                                     .addOnSuccessListener(
@@ -528,7 +524,15 @@ public class MainActivity extends AppCompatActivity {
                                                     }
                                                 } else {
                                                     // Access already granted, continue with user action
+                                                    MainActivity.this.runOnUiThread(() -> {
+                                                        Toast.makeText(MainActivity.this, "Already authorized", Toast.LENGTH_SHORT).show();
+                                                    });
                                                     Log.d(TAG, "Already authorized");
+                                                    Log.d(TAG, "Getting server auth code ...");
+
+
+
+                                                    //GDHelper.getInstance().setServerAuthCode(authorizationResult.getAccessToken());
                                                     //saveToDriveAppFolder(authorizationResult);
                                                 }
                                             })
@@ -576,12 +580,13 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == MainActivity.REQUEST_AUTHORIZE) {
-            AuthorizationResult authorizationResult = null;
+            AuthorizationResult authorizationResult;
             try {
                 authorizationResult = Identity.getAuthorizationClient(this).getAuthorizationResultFromIntent(data);
             } catch (ApiException e) {
                 throw new RuntimeException(e);
             }
+            Toast.makeText(this, "got authorization", Toast.LENGTH_SHORT).show();
             Log.d(TAG, "onActivityResult: got authorizationResult:" + authorizationResult);
             //saveToDriveAppFolder(authorizationResult);
         }
