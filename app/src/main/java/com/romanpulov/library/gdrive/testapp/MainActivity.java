@@ -554,7 +554,7 @@ public class MainActivity extends AppCompatActivity {
             AuthorizationRequest authorizationRequest = AuthorizationRequest.builder()
                     .setRequestedScopes(requestedScopes)
                     .build();
-            Identity.getAuthorizationClient(MainActivity.this)
+            Identity.getAuthorizationClient(MainActivity.this.getApplicationContext())
                     .authorize(authorizationRequest)
                     .addOnSuccessListener(
                             authorizationResult -> {
