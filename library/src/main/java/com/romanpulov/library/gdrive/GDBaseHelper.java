@@ -16,6 +16,10 @@ public abstract class GDBaseHelper {
         configure();
     }
 
+    public void setServerAccessToken(String accessToken) {
+        GDAuthData.setAccessToken(accessToken);
+    }
+
     public void setServerAuthCode(String authCode) {
         GDAuthData.setAuthCode(authCode);
     }

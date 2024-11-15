@@ -485,7 +485,7 @@ public class MainActivity extends AppCompatActivity {
                     .build();
 
             GetCredentialRequest getCredRequest = new GetCredentialRequest.Builder()
-                    .addCredentialOption(googleIdOption)
+                    .addCredentialOption(signInWithGoogleOption)
                     .build();
 
             CredentialManager credentialManager = CredentialManager.create(getApplicationContext());
@@ -502,41 +502,41 @@ public class MainActivity extends AppCompatActivity {
                         public void onResult(GetCredentialResponse result) {
                             Log.d(TAG, "onResult: Got the credential:" + result);
                             MainActivity.this.runOnUiThread(() -> {
-                                Toast.makeText(MainActivity.this, "Got the credential", Toast.LENGTH_SHORT).show();
-                            });
+                                Toast.makeText(MainActivity.this, "Got the credential, requesting scopes ...", Toast.LENGTH_SHORT).show();
 
-                            List<Scope> requestedScopes =  Arrays.asList(new Scope(DriveScopes.DRIVE_APPDATA));
-                            AuthorizationRequest authorizationRequest = AuthorizationRequest.builder()
-                                    .setRequestedScopes(requestedScopes)
-                                    .build();
-                            Identity.getAuthorizationClient(MainActivity.this)
-                                    .authorize(authorizationRequest)
-                                    .addOnSuccessListener(
-                                            authorizationResult -> {
-                                                if (authorizationResult.hasResolution()) {
-                                                    // Access needs to be granted by the user
-                                                    PendingIntent pendingIntent = authorizationResult.getPendingIntent();
-                                                    try {
-                                                        startIntentSenderForResult(pendingIntent.getIntentSender(),
-                                                                MainActivity.REQUEST_AUTHORIZE, null, 0, 0, 0, null);
-                                                    } catch (IntentSender.SendIntentException e) {
-                                                        Log.e(TAG, "Couldn't start Authorization UI: " + e.getLocalizedMessage());
+                                List<Scope> requestedScopes =  Arrays.asList(new Scope(DriveScopes.DRIVE));
+                                AuthorizationRequest authorizationRequest = AuthorizationRequest.builder()
+                                        .setRequestedScopes(requestedScopes)
+                                        .build();
+                                Identity.getAuthorizationClient(MainActivity.this)
+                                        .authorize(authorizationRequest)
+                                        .addOnSuccessListener(
+                                                authorizationResult -> {
+                                                    if (authorizationResult.hasResolution()) {
+                                                        Log.d(TAG, "Has resolution");
+                                                        // Access needs to be granted by the user
+                                                        PendingIntent pendingIntent = authorizationResult.getPendingIntent();
+                                                        try {
+                                                            startIntentSenderForResult(pendingIntent.getIntentSender(),
+                                                                    MainActivity.REQUEST_AUTHORIZE, null, 0, 0, 0, null);
+                                                        } catch (IntentSender.SendIntentException e) {
+                                                            Log.e(TAG, "Couldn't start Authorization UI: " + e.getLocalizedMessage());
+                                                        }
+                                                    } else {
+                                                        // Access already granted, continue with user action
+                                                        MainActivity.this.runOnUiThread(() -> {
+                                                            Toast.makeText(MainActivity.this, "Already authorized with scopes:" + authorizationResult.getGrantedScopes(), Toast.LENGTH_SHORT).show();
+                                                        });
+                                                        Log.d(TAG, "Already authorized, token:" + authorizationResult.getAccessToken());
+                                                        Log.d(TAG, "Scopes:" + authorizationResult.getGrantedScopes());
+                                                        Log.d(TAG, "Getting server auth code ...");
+
+                                                        //GDHelper.getInstance().setServerAuthCode(authorizationResult.getAccessToken());
+                                                        //saveToDriveAppFolder(authorizationResult);
                                                     }
-                                                } else {
-                                                    // Access already granted, continue with user action
-                                                    MainActivity.this.runOnUiThread(() -> {
-                                                        Toast.makeText(MainActivity.this, "Already authorized", Toast.LENGTH_SHORT).show();
-                                                    });
-                                                    Log.d(TAG, "Already authorized");
-                                                    Log.d(TAG, "Getting server auth code ...");
-
-
-
-                                                    //GDHelper.getInstance().setServerAuthCode(authorizationResult.getAccessToken());
-                                                    //saveToDriveAppFolder(authorizationResult);
-                                                }
-                                            })
-                                    .addOnFailureListener(e -> Log.e(TAG, "Failed to authorize", e));
+                                                })
+                                        .addOnFailureListener(e -> Log.e(TAG, "Failed to authorize", e));
+                            });
 
                         }
 
@@ -546,6 +546,31 @@ public class MainActivity extends AppCompatActivity {
                             //handleFailure(e);
                         }
                     });
+        });
+
+        Button crSilentLogin = findViewById(R.id.button_cr_silent_login);
+        crSilentLogin.setOnClickListener(v -> {
+            List<Scope> requestedScopes =  Arrays.asList(new Scope(DriveScopes.DRIVE));
+            AuthorizationRequest authorizationRequest = AuthorizationRequest.builder()
+                    .setRequestedScopes(requestedScopes)
+                    .build();
+            Identity.getAuthorizationClient(MainActivity.this)
+                    .authorize(authorizationRequest)
+                    .addOnSuccessListener(
+                            authorizationResult -> {
+                                if (authorizationResult.hasResolution()) {
+                                    Log.e(TAG, "Has resolution, access token:" + authorizationResult.getAccessToken());
+                                } else {
+                                    // Access already granted, continue with user action
+                                    MainActivity.this.runOnUiThread(() -> {
+                                        Toast.makeText(MainActivity.this, "Already authorized with scope:" + authorizationResult.getGrantedScopes(), Toast.LENGTH_SHORT).show();
+                                    });
+                                    Log.d(TAG, "Authorized, token:" + authorizationResult.getAccessToken());
+                                    GDHelper.getInstance().setServerAccessToken(authorizationResult.getAccessToken());
+                                }
+                            })
+                    .addOnFailureListener(e -> Log.e(TAG, "Failed to authorize", e));
+
         });
 
         Button crLogout = findViewById(R.id.button_cr_logout);
@@ -580,15 +605,14 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == MainActivity.REQUEST_AUTHORIZE) {
-            AuthorizationResult authorizationResult;
             try {
-                authorizationResult = Identity.getAuthorizationClient(this).getAuthorizationResultFromIntent(data);
+                AuthorizationResult checkAuthorizationResult = Identity.getAuthorizationClient(this).getAuthorizationResultFromIntent(data);
+                Toast.makeText(this, "got authorization", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "onActivityResult: got authorizationResult with scopes:" + checkAuthorizationResult.getGrantedScopes());
+
             } catch (ApiException e) {
-                throw new RuntimeException(e);
+                Log.e(TAG, e.getMessage());
             }
-            Toast.makeText(this, "got authorization", Toast.LENGTH_SHORT).show();
-            Log.d(TAG, "onActivityResult: got authorizationResult:" + authorizationResult);
-            //saveToDriveAppFolder(authorizationResult);
         }
 
         GDHelper.handleActivityResult(this, requestCode, resultCode, data);

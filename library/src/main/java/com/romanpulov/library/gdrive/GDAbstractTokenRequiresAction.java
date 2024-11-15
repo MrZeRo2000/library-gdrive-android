@@ -24,15 +24,9 @@ public abstract class GDAbstractTokenRequiresAction<D> extends GDAbstractAuthCod
      */
     @Override
     protected void executeWithAuthCode() {
-        if ((GDAuthData.mAccessToken.get() != null)
-                && (GDAuthData.mAccessTokenExpireTime.get() != null)
-                && (SystemClock.elapsedRealtime() < GDAuthData.mAccessTokenExpireTime.get())
-
-        )
-        {
+        if ((GDAuthData.mAccessToken.get() != null) && (!GDAuthData.accessTokenExpired())) {
             executeWithToken();
-        } else
-        {
+        } else {
             Log.d(TAG, "Token is not available, obtaining");
             GDAuthData.clearAccessToken();
 
