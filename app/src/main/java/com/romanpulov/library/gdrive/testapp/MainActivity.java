@@ -2,6 +2,10 @@ package com.romanpulov.library.gdrive.testapp;
 
 import android.app.PendingIntent;
 import android.os.CancellationSignal;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.IntentSenderRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.credentials.*;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -57,6 +61,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -508,13 +513,20 @@ public class MainActivity extends AppCompatActivity {
                                 AuthorizationRequest authorizationRequest = AuthorizationRequest.builder()
                                         .setRequestedScopes(requestedScopes)
                                         .build();
-                                Identity.getAuthorizationClient(MainActivity.this)
+                                Identity.getAuthorizationClient(MainActivity.this.getApplicationContext())
                                         .authorize(authorizationRequest)
                                         .addOnSuccessListener(
                                                 authorizationResult -> {
                                                     if (authorizationResult.hasResolution()) {
                                                         Log.d(TAG, "Has resolution");
+
+
+
+                                                        PendingIntent pendingIntent = Objects.requireNonNull(authorizationResult.getPendingIntent());
+                                                        IntentSenderRequest intentSenderRequest = new IntentSenderRequest.Builder(pendingIntent.getIntentSender()).build();
+                                                        launcher.launch(intentSenderRequest);
                                                         // Access needs to be granted by the user
+                                                        /*
                                                         PendingIntent pendingIntent = authorizationResult.getPendingIntent();
                                                         try {
                                                             startIntentSenderForResult(pendingIntent.getIntentSender(),
@@ -522,6 +534,8 @@ public class MainActivity extends AppCompatActivity {
                                                         } catch (IntentSender.SendIntentException e) {
                                                             Log.e(TAG, "Couldn't start Authorization UI: " + e.getLocalizedMessage());
                                                         }
+
+                                                         */
                                                     } else {
                                                         // Access already granted, continue with user action
                                                         MainActivity.this.runOnUiThread(() -> {
@@ -529,7 +543,6 @@ public class MainActivity extends AppCompatActivity {
                                                         });
                                                         Log.d(TAG, "Already authorized, token:" + authorizationResult.getAccessToken());
                                                         Log.d(TAG, "Scopes:" + authorizationResult.getGrantedScopes());
-                                                        Log.d(TAG, "Getting server auth code ...");
 
                                                         //GDHelper.getInstance().setServerAuthCode(authorizationResult.getAccessToken());
                                                         //saveToDriveAppFolder(authorizationResult);
@@ -594,6 +607,7 @@ public class MainActivity extends AppCompatActivity {
                             MainActivity.this.runOnUiThread(() -> {
                                 Toast.makeText(MainActivity.this, "Logged out", Toast.LENGTH_SHORT).show();
                             });
+                            requestSignOut();
                         }
                     }
             );
@@ -721,4 +735,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    final ActivityResultLauncher<IntentSenderRequest> launcher = registerForActivityResult(new ActivityResultContracts.StartIntentSenderForResult(),
+            intentSenderResult -> {
+                AuthorizationResult checkAuthorizationResult = null;
+                try {
+                    checkAuthorizationResult = Identity
+                            .getAuthorizationClient(getApplicationContext())
+                            .getAuthorizationResultFromIntent(intentSenderResult.getData());
+                    Toast.makeText(this, "got authorization via registerForActivityResult", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "onActivityResult: got authorizationResult via registerForActivityResult with scopes:" + checkAuthorizationResult.getGrantedScopes());
+                } catch (ApiException e) {
+                    Toast.makeText(this, "failed authorization via registerForActivityResult:" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+
+            });
 }
