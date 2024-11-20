@@ -1,27 +1,44 @@
 package com.romanpulov.library.gdrive;
 
-import android.app.Activity;
+import android.content.Context;
+import android.os.CancellationSignal;
+import androidx.credentials.ClearCredentialStateRequest;
+import androidx.credentials.CredentialManager;
+import androidx.credentials.CredentialManagerCallback;
+import androidx.credentials.exceptions.ClearCredentialException;
+import org.jetbrains.annotations.NotNull;
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import java.util.concurrent.Executors;
 
 public class GDSignOutAction extends GDAbstractAction<Void>{
-    private final Activity mActivity;
+    private final Context mContext;
 
     @Override
     public void execute() {
-        GoogleSignInOptions signInOptions =
-                new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                        .build();
-        GoogleSignInClient client = GoogleSignIn.getClient(mActivity, signInOptions);
-        client.revokeAccess()
-                .addOnSuccessListener(this::notifySuccess)
-                .addOnFailureListener(this::notifyError);
+        ClearCredentialStateRequest clearCredentialStateRequest = new ClearCredentialStateRequest();
+        CredentialManager credentialManager = CredentialManager.create(mContext.getApplicationContext());
+
+        credentialManager.clearCredentialStateAsync(
+                clearCredentialStateRequest,
+                new CancellationSignal(),
+                Executors.newSingleThreadExecutor(),
+                new CredentialManagerCallback<Void, ClearCredentialException>() {
+                    @Override
+                    public void onError(@NotNull ClearCredentialException e) {
+                        notifyError(e);
+                    }
+
+                    @Override
+                    public void onResult(Void unused) {
+                        notifySuccess(null);
+                    }
+                }
+        );
+
     }
 
-    public GDSignOutAction(Activity activity, OnGDActionListener<Void> gdActionListener) {
+    public GDSignOutAction(Context context, OnGDActionListener<Void> gdActionListener) {
         super(gdActionListener);
-        mActivity = activity;
+        mContext = context;
     }
 }

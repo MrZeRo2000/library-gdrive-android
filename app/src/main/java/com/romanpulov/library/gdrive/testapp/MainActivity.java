@@ -2,7 +2,6 @@ package com.romanpulov.library.gdrive.testapp;
 
 import android.app.PendingIntent;
 import android.os.CancellationSignal;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -38,7 +37,6 @@ import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
-import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
@@ -107,6 +105,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         rs = new RESTDriveService(this);
+
+        GDHelper.getInstance().registerActivity(this);
 
         Button signInButton = findViewById(R.id.button_sign_in);
         signInButton.setOnClickListener(v -> {
@@ -237,10 +237,10 @@ public class MainActivity extends AppCompatActivity {
     private void setupGDLibraryButtons() {
         Button gdLogin = findViewById(R.id.button_gd_login);
         gdLogin.setOnClickListener(v -> {
-            GDHelper.getInstance().login(this, new OnGDActionListener<Void>() {
+            GDHelper.getInstance().login(new OnGDActionListener<Void>() {
                 @Override
                 public void onActionSuccess(Void data) {
-                    //never executed
+                    Toast.makeText(MainActivity.this, "Login successful!", Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
@@ -255,12 +255,24 @@ public class MainActivity extends AppCompatActivity {
             GDHelper.getInstance().logout(this, new OnGDActionListener<Void>() {
                 @Override
                 public void onActionSuccess(Void data) {
-                    Toast.makeText(MainActivity.this, "Successfully signed out", Toast.LENGTH_SHORT).show();
+                    MainActivity.this.runOnUiThread(() ->
+                        Toast.makeText(
+                                MainActivity.this,
+                                "Successfully signed out",
+                                Toast.LENGTH_SHORT)
+                                .show()
+                    );
                 }
 
                 @Override
                 public void onActionFailure(Exception exception) {
-                    Toast.makeText(MainActivity.this, "Error signing out:" + exception.getMessage(), Toast.LENGTH_SHORT).show();
+                    MainActivity.this.runOnUiThread(() ->
+                            Toast.makeText(
+                                    MainActivity.this,
+                                    "Error signing out:" + exception.getMessage(),
+                                    Toast.LENGTH_SHORT)
+                                    .show()
+                    );
                 }
             });
         });
@@ -520,8 +532,6 @@ public class MainActivity extends AppCompatActivity {
                                                     if (authorizationResult.hasResolution()) {
                                                         Log.d(TAG, "Has resolution");
 
-
-
                                                         PendingIntent pendingIntent = Objects.requireNonNull(authorizationResult.getPendingIntent());
                                                         IntentSenderRequest intentSenderRequest = new IntentSenderRequest.Builder(pendingIntent.getIntentSender()).build();
                                                         launcher.launch(intentSenderRequest);
@@ -628,8 +638,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(TAG, e.getMessage());
             }
         }
-
-        GDHelper.handleActivityResult(this, requestCode, resultCode, data);
 
         switch (requestCode) {
             case REQ_ONE_TAP:

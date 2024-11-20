@@ -3,12 +3,15 @@ package com.romanpulov.library.gdrive;
 import android.app.Activity;
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import org.json.JSONObject;
 
 import java.io.File;
 
 public abstract class GDBaseHelper {
     private final static String TAG = GDBaseHelper.class.getSimpleName();
+
+    private GDInteractiveAuthenticationAction mGDInteractiveAuthenticationAction;
 
     protected abstract void configure();
 
@@ -24,12 +27,22 @@ public abstract class GDBaseHelper {
         GDAuthData.setAuthCode(authCode);
     }
 
-    public void login(Activity activity, OnGDActionListener<Void> callback) {
-        GDActionExecutor.execute(new GDInteractiveAuthenticationAction(activity, callback));
+    public void registerActivity(@NonNull Activity activity) {
+        this.mGDInteractiveAuthenticationAction =
+                new GDInteractiveAuthenticationAction(activity, null);
     }
 
-    public void logout(Activity activity, OnGDActionListener<Void> callback) {
-        GDActionExecutor.execute(new GDSignOutAction(activity, callback));
+    public void unregisterActivity() {
+        this.mGDInteractiveAuthenticationAction = null;
+    }
+
+    public void login(OnGDActionListener<Void> callback) {
+        this.mGDInteractiveAuthenticationAction.setGDActionListener(callback);
+        GDActionExecutor.execute(this.mGDInteractiveAuthenticationAction);
+    }
+
+    public void logout(Context context, OnGDActionListener<Void> callback) {
+        GDActionExecutor.execute(new GDSignOutAction(context, callback));
     }
 
     public void silentLogin(Context context) throws GDActionException {
