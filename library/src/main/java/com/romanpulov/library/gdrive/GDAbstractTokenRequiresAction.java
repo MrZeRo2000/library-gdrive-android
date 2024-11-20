@@ -1,69 +1,60 @@
 package com.romanpulov.library.gdrive;
 
-import android.app.Activity;
 import android.content.Context;
-import android.os.SystemClock;
 import android.util.Log;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.android.gms.auth.api.identity.AuthorizationRequest;
+import com.google.android.gms.auth.api.identity.Identity;
+import com.google.android.gms.common.api.Scope;
 
-import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Token requires abstract action
  * @param <D> data type to return
  */
-public abstract class GDAbstractTokenRequiresAction<D> extends GDAbstractAuthCodeAvailableAction<D>{
+public abstract class GDAbstractTokenRequiresAction<D> extends GDAbstractAction<D>{
     private static final String TAG = GDAbstractTokenRequiresAction.class.getSimpleName();
 
+    protected final Context mContext;
     protected abstract void executeWithToken();
 
-    /**
-     * https://developers.google.com/identity/protocols/oauth2/web-server#exchange-authorization-code
-     */
     @Override
-    protected void executeWithAuthCode() {
+    public void execute() {
         if ((GDAuthData.mAccessToken.get() != null) && (!GDAuthData.accessTokenExpired())) {
+            Log.d(TAG, "Token already available, executing");
             executeWithToken();
         } else {
             Log.d(TAG, "Token is not available, obtaining");
             GDAuthData.clearAccessToken();
 
-            String postString = String.format(
-                    "code=%s&client_id=%s&client_secret=%s&redirect_uri=&grant_type=authorization_code",
-                    GDAuthData.mAuthCode.get(),
-                    GDConfig.get().getAuthConfigData(mContext).getWebClientId(),
-                    GDConfig.get().getAuthConfigData(mContext).getClientSecret()
-            );
-            Log.d(TAG, "Post string:" + postString);
-            byte[] postData = postString.getBytes(StandardCharsets.UTF_8);
+            List<Scope> requestedScopes = Collections.singletonList(new Scope(GDConfig.get().getScope()));
 
-            HttpRequestWrapper.executePostRequest(
-                    mContext,
-                    "https://oauth2.googleapis.com/token",
-                    "application/x-www-form-urlencoded",
-                    postData,
-                    response -> {
-                        Log.d(TAG, "Got response:" + response);
-                        try {
-                            JSONObject jsonResponse = new JSONObject(response);
-                            GDAuthData.mAccessToken.set(jsonResponse.getString("access_token"));
-                            GDAuthData.mAccessTokenExpireTime.set(SystemClock.elapsedRealtime() + jsonResponse.getLong("expires_in") * 1000);
+            AuthorizationRequest authorizationRequest = AuthorizationRequest.builder()
+                    .setRequestedScopes(requestedScopes)
+                    .build();
 
-                            Log.d(TAG, "Got the token");
-                            executeWithToken();
-                        } catch (JSONException e) {
-                            notifyError(e);
-                        }
-                    },
-                    error -> notifyError(HttpRequestException.fromVolleyError(error))
-            );
-
+            Identity.getAuthorizationClient(mContext.getApplicationContext())
+                    .authorize(authorizationRequest)
+                    .addOnSuccessListener(
+                            authorizationResult -> {
+                                if (authorizationResult.hasResolution()) {
+                                    Log.e(TAG, "Has resolution, access token:" + authorizationResult.getAccessToken());
+                                    notifyError(new GDActionException("Not authorized to access resource"));
+                                } else {
+                                    // Access already granted, continue with user action
+                                    Log.d(TAG, "Authorized, got token:" + authorizationResult.getAccessToken());
+                                    GDAuthData.mAccessToken.set(authorizationResult.getAccessToken());
+                                    executeWithToken();
+                                }
+                            })
+                    .addOnFailureListener(this::notifyError);
         }
     }
 
     public GDAbstractTokenRequiresAction(Context context, OnGDActionListener<D> gdActionListener) {
-        super(context, gdActionListener);
+        super(gdActionListener);
+        this.mContext = context;
     }
 }
