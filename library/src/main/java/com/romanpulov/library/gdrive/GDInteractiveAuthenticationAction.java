@@ -3,6 +3,7 @@ package com.romanpulov.library.gdrive;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.os.CancellationSignal;
+import android.util.Log;
 import androidx.activity.ComponentActivity;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.IntentSenderRequest;
@@ -59,6 +60,7 @@ public class GDInteractiveAuthenticationAction extends GDAbstractAction<Void>{
                 .addOnSuccessListener(
                         authorizationResult -> {
                             if (authorizationResult.hasResolution()) {
+                                Log.d(TAG, "authorization has resolution, launching request");
                                 PendingIntent pendingIntent = Objects.requireNonNull(authorizationResult.getPendingIntent());
                                 IntentSenderRequest intentSenderRequest = new IntentSenderRequest
                                         .Builder(pendingIntent.getIntentSender())
@@ -66,6 +68,7 @@ public class GDInteractiveAuthenticationAction extends GDAbstractAction<Void>{
                                 GDInteractiveAuthenticationAction.this.mLauncher.launch(intentSenderRequest);
                             } else {
                                 // Access already granted, continue with user action
+                                Log.d(TAG, "already authorized");
                                 notifySuccess(null);
                             }
                         })
@@ -97,6 +100,7 @@ public class GDInteractiveAuthenticationAction extends GDAbstractAction<Void>{
                 new CredentialManagerCallback<GetCredentialResponse, GetCredentialException>() {
                     @Override
                     public void onResult(GetCredentialResponse result) {
+                        Log.d(TAG, "Obtained credential, proceeding with authorization");
                         GDInteractiveAuthenticationAction.this.authorize();
                     }
 
