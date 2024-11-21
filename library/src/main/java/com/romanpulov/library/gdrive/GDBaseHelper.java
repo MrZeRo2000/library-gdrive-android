@@ -9,7 +9,6 @@ import org.json.JSONObject;
 import java.io.File;
 
 public abstract class GDBaseHelper {
-    private final static String TAG = GDBaseHelper.class.getSimpleName();
 
     private GDInteractiveAuthenticationAction mGDInteractiveAuthenticationAction;
 

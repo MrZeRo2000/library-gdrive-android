@@ -1,23 +1,13 @@
 package com.romanpulov.library.gdrive.testapp;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.Application;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.ActivityResultRegistry;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.LifecycleOwner;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -49,7 +39,7 @@ import java.util.Locale;
 import java.util.concurrent.Executors;
 
 /**
- * Source: https://stackoverflow.com/questions/54178308/new-google-drive-rest-api-too-much-dependencies
+ * Source: <a href="https://stackoverflow.com/questions/54178308/new-google-drive-rest-api-too-much-dependencies">...</a>
  */
 public class RESTDriveService implements OnSuccessListener<GoogleSignInAccount>, OnFailureListener {
     private final static String TAG = RESTDriveService.class.getSimpleName();
@@ -57,7 +47,6 @@ public class RESTDriveService implements OnSuccessListener<GoogleSignInAccount>,
 
         private static final String LINE_FEED = "\r\n";
         private static final String APP_FOLDER_ID = "appDataFolder";
-        private static final String SCOPE_APPDATA = "https://www.googleapis.com/auth/drive.appdata";
     private static final String SCOPE_DRIVE = "https://www.googleapis.com/auth/drive";
 
         private static final String FILES_REST_URL = "https://www.googleapis.com/drive/v3/files";
@@ -67,8 +56,7 @@ public class RESTDriveService implements OnSuccessListener<GoogleSignInAccount>,
         private static final String BEARER_VAL = "Bearer ";
         private static final String CONTENT_TYPE_PARAM = "Content-Type: ";
 
-        private static final String DB_NAME = "prana_breath.sqlite";
-        private static final String SQLITE_MIME = "application/x-sqlite3";
+    private static final String SQLITE_MIME = "application/x-sqlite3";
 
         private AppCompatActivity mActivity;
 

@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 public class GDHelper extends GDBaseHelper {
-    private static final int REQUEST_CODE_SIGN_IN = 1543;
 
     @Override
     protected void configure() {
