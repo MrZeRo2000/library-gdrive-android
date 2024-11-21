@@ -27,12 +27,6 @@ public class GDConfig {
         return mScope;
     }
 
-    private final int mAuthRequestCode;
-
-    public int getAuthRequestCode() {
-        return mAuthRequestCode;
-    }
-
     private GDAuthConfigData mGDAuthConfigData;
 
     public static class GDAuthConfigData {
@@ -55,21 +49,18 @@ public class GDConfig {
 
     private static GDConfig instance;
 
-    private GDConfig(int configResId, String scope, int authRequestCode) {
+    private GDConfig(int configResId, String scope) {
         this.mConfigResId = configResId;
         this.mScope = scope;
-        this.mAuthRequestCode = authRequestCode;
     }
 
-    public static GDConfig configure(int configResId, String scope, int authRequestCode) {
+    public static void configure(int configResId, String scope) {
         if (instance == null) {
-            instance = new GDConfig(configResId, scope, authRequestCode);
+            instance = new GDConfig(configResId, scope);
         } else {
             instance.mConfigResId = configResId;
             instance.mScope = scope;
         }
-
-        return instance;
     }
 
     public static GDConfig get() {

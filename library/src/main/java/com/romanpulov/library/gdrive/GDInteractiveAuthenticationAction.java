@@ -10,6 +10,8 @@ import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.credentials.*;
 import androidx.credentials.exceptions.GetCredentialException;
+import androidx.core.content.ContextCompat;
+
 import com.google.android.gms.auth.api.identity.AuthorizationRequest;
 import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.common.api.ApiException;
@@ -96,7 +98,7 @@ public class GDInteractiveAuthenticationAction extends GDAbstractAction<Void>{
                 this.mActivity,
                 getCredRequest,
                 new CancellationSignal(),
-                Executors.newSingleThreadExecutor(),
+                ContextCompat.getMainExecutor(this.mActivity),
                 new CredentialManagerCallback<GetCredentialResponse, GetCredentialException>() {
                     @Override
                     public void onResult(GetCredentialResponse result) {

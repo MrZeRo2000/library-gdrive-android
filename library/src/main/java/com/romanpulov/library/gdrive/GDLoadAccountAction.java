@@ -1,6 +1,6 @@
 package com.romanpulov.library.gdrive;
 
-import android.app.Activity;
+import android.content.Context;
 
 public class GDLoadAccountAction extends GDAbstractTokenRequiresAction<Void>{
     @Override
@@ -8,7 +8,7 @@ public class GDLoadAccountAction extends GDAbstractTokenRequiresAction<Void>{
         notifySuccess(null);
     }
 
-    public GDLoadAccountAction(Activity activity, OnGDActionListener<Void> gdActionListener) {
-        super(activity, gdActionListener);
+    public GDLoadAccountAction(Context context, OnGDActionListener<Void> gdActionListener) {
+        super(context, gdActionListener);
     }
 }

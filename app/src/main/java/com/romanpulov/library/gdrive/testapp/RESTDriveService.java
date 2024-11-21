@@ -420,7 +420,7 @@ public class RESTDriveService implements OnSuccessListener<GoogleSignInAccount>,
          * https://developers.google.com/drive/api/v3/reference/files/list
          * @return
          */
-        private final String getLatestDbFileIdOnDrive() {
+        private String getLatestDbFileIdOnDrive() {
             HttpURLConnection conn = null;
             InputStream is = null;
             InputStreamReader isr = null;

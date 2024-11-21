@@ -23,10 +23,6 @@ public abstract class GDBaseHelper {
         GDAuthData.setAccessToken(accessToken);
     }
 
-    public void setServerAuthCode(String authCode) {
-        GDAuthData.setAuthCode(authCode);
-    }
-
     public void registerActivity(@NonNull Activity activity) {
         this.mGDInteractiveAuthenticationAction =
                 new GDInteractiveAuthenticationAction(activity, null);
@@ -46,13 +42,11 @@ public abstract class GDBaseHelper {
     }
 
     public void silentLogin(Context context) throws GDActionException {
-        setServerAuthCode(
-                GDActionExecutor.executeSync(new GDSilentAuthenticationAction(context, null))
-        );
-    }
+        GDActionExecutor.executeSync(new GDLoadAccountAction(context, null));
+   }
 
-    public void load(Activity activity, OnGDActionListener<Void> callback) {
-        GDActionExecutor.execute(new GDLoadAccountAction(activity, callback));
+    public void load(Context context, OnGDActionListener<Void> callback) {
+        GDActionExecutor.execute(new GDLoadAccountAction(context, callback));
     }
 
     public void listItems(Context context, OnGDActionListener<JSONObject> callback) {

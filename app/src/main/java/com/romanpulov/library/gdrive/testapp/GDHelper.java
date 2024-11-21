@@ -15,7 +15,7 @@ public class GDHelper extends GDBaseHelper {
 
     @Override
     protected void configure() {
-        GDConfig.configure(R.raw.gd_config, "https://www.googleapis.com/auth/drive", REQUEST_CODE_SIGN_IN);
+        GDConfig.configure(R.raw.gd_config, "https://www.googleapis.com/auth/drive");
     }
 
     private static GDHelper instance;

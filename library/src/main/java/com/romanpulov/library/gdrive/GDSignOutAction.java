@@ -3,13 +3,12 @@ package com.romanpulov.library.gdrive;
 import android.content.Context;
 import android.os.CancellationSignal;
 import android.util.Log;
+import androidx.core.content.ContextCompat;
 import androidx.credentials.ClearCredentialStateRequest;
 import androidx.credentials.CredentialManager;
 import androidx.credentials.CredentialManagerCallback;
 import androidx.credentials.exceptions.ClearCredentialException;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.concurrent.Executors;
 
 public class GDSignOutAction extends GDAbstractAction<Void>{
     private static final String TAG = GDSignOutAction.class.getSimpleName();
@@ -23,7 +22,7 @@ public class GDSignOutAction extends GDAbstractAction<Void>{
         credentialManager.clearCredentialStateAsync(
                 clearCredentialStateRequest,
                 new CancellationSignal(),
-                Executors.newSingleThreadExecutor(),
+                ContextCompat.getMainExecutor(mContext),
                 new CredentialManagerCallback<Void, ClearCredentialException>() {
                     @Override
                     public void onError(@NotNull ClearCredentialException e) {
