@@ -12,28 +12,30 @@ ext {
     artifact = 'library'
 
     libraryDescription = 'Roman Pulov GDrive library for Android'
-    libraryVersion = '0.1.0'
+    libraryVersion = '0.1.1'
 }
 
 android {
     namespace = "com.romanpulov.library.gdrive"
 
     defaultConfig {
-        compileSdk 35
+        compileSdk 36
         minSdk 24
-        targetSdk 35
+        targetSdk 36
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
     }
-
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
     publishing {
         singleVariant('release') {
         }
@@ -45,18 +47,18 @@ android {
 }
 
 dependencies {
-    def credentials_version = '1.5.0-beta01'
+    def credentials_version = '1.5.0'
 
-    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation "androidx.credentials:credentials:$credentials_version"
     implementation "androidx.credentials:credentials-play-services-auth:$credentials_version"
 
     implementation 'com.google.android.material:material:1.12.0'
     implementation 'com.android.volley:volley:1.2.1'
-    implementation 'com.google.android.gms:play-services-auth:21.2.0'
+    implementation 'com.google.android.gms:play-services-auth:21.3.0'
     implementation "com.google.android.libraries.identity.googleid:googleid:1.1.1"
 
-    implementation 'com.romanpulov:jutils-core:0.4.2'
+    implementation 'com.romanpulov:jutils-core:0.4.3'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'

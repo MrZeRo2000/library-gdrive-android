@@ -6,23 +6,25 @@ android {
     namespace = "com.romanpulov.library.gdrive.testapp"
 
     defaultConfig {
-        compileSdk 35
+        compileSdk 36
         applicationId "com.romanpulov.library.gdrive.testapp"
         minSdk 24
-        targetSdk 35
+        targetSdk 36
         versionCode 1
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
-
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
     packagingOptions {
         resources {
             excludes += ['META-INF/DEPENDENCIES', 'META-INF/LICENSE', 'META-INF/LICENSE.txt', 'META-INF/license.txt', 'META-INF/NOTICE', 'META-INF/NOTICE.txt', 'META-INF/notice.txt', 'META-INF/ASL2.0']
@@ -31,13 +33,13 @@ android {
 }
 
 dependencies {
-    def work_version = '2.9.1'
-    def credentials_version = '1.5.0-beta01'
+    def work_version = '2.10.2'
+    def credentials_version = '1.5.0'
 
-    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'com.google.android.material:material:1.12.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'com.google.android.gms:play-services-auth:21.2.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
+    implementation 'com.google.android.gms:play-services-auth:21.3.0'
     implementation "androidx.work:work-runtime:$work_version"
 
     implementation 'com.google.http-client:google-http-client-gson:1.43.3'
@@ -50,7 +52,7 @@ dependencies {
 
     implementation 'com.android.volley:volley:1.2.1'
 
-    implementation 'com.romanpulov:jutils-core:0.4.2'
+    implementation 'com.romanpulov:jutils-core:0.4.3'
 
     implementation project(':library')
 
